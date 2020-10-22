@@ -7,21 +7,17 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-data = read.csv('https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset/download')
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQqgF8LceNHHR7Fy9PbTN3pFVnjQwvEyGeQnkCFO43GMaNSZ1qzdTcLwh-uZdUp01zsDAd679r3YowF/pub?output=csv')
+
 ```
 
-## R Markdown
+## San Francisco Crime
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+I discovered this data set at <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset>.  In order to create my data file, I clicked the icon to upload to Google sheets, published it to the web and copied a link.  Some data will be possible to upload to github but if the file is large github will not do it.  You need the data to be in a raw form, with csv.
 
-$$
-e^{i\pi}+1=0
-$$
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r}
-summary(cars)
+summary(data)
 ```
 
 ## Including Plots
