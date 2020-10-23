@@ -5,27 +5,38 @@ date: "10/22/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
+library(ggplot2)
 knitr::opts_chunk$set(echo = TRUE)
-data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQqgF8LceNHHR7Fy9PbTN3pFVnjQwvEyGeQnkCFO43GMaNSZ1qzdTcLwh-uZdUp01zsDAd679r3YowF/pub?output=csv')
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
 
 ```
 
-## San Francisco Crime
+## Olympic Medals
 
-I discovered this data set at <https://www.kaggle.com/roshansharma/sanfranciso-crime-dataset>.  In order to create my data file, I clicked the icon to upload to Google sheets, published it to the web and copied a link.  Some data will be possible to upload to github but if the file is large github will not do it.  You need the data to be in a raw form, with csv.
+I discovered this data set at <https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results>.  In order to create my data file, I clicked the icon to upload to Google sheets, published it to the web as a csv and copied a link.  Some data will be possible to upload to github but if the file is large github will not do it.  You need the data to be in a raw form, with csv.
 
 
 ```{r}
 summary(data)
 ```
+I wonder what sports have had the most athletes of all time.
+```{r athletes}
+ggplot(data, aes(Sport)) +
+  geom_bar()
+```
+```{r}
+table(data$Sport)
+```
+The table gave me a better representation.  Clearly I could not tell in the bar chart what 
+## Scatter Plot
 
-## Including Plots
+Let's compare height and weight as we will surely find some correlation there!
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r scatter, echo=FALSE}
+ggplot(data, aes(Height, Weight, colour = Sex)) + 
+  geom_point() +
+  geom_smooth(method="lm")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+I stuck the color in here to see the differences between the sexes.  Finding that there most likely will be a significant difference in the regression between the sexes, I added the regression lines as well, 'lm' is the linear method.
