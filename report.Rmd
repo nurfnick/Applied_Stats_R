@@ -8,6 +8,7 @@ output: html_document
 ```{r setup}
 library(ggplot2)
 library(ggExtra)
+library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
 
@@ -29,7 +30,25 @@ ggplot(data, aes(Sport)) +
 ```{r}
 table(data$Sport)
 ```
-The table gave me a better representation.  Clearly I could not tell in the bar chart what 
+The table gave me a better representation.  Clearly I could not tell in the bar chart what the games were.  Let me try one more way and include relative frequency.
+
+```{r}
+#options(digits=2)
+freq <- rbind(table(data$Sport),table(data$Sport)/length(data$Sport))
+row.names(freq)<-c('Frequency','Relative Frequency')
+freq
+```
+meh, that is still not great.  One more time?
+```{r}
+percent <- function(x, digits = 2, format = "f", ...) {      # Create user-defined function
+  paste0(formatC(x * 100, format = format, digits = digits, ...), "%")
+} 
+data %>%
+  group_by(Sport) %>%
+  summarize(Frequency = length(Sport),RelativeFrequency = percent(length(Sport)/271116))
+```
+Such a nicer, usable table!  I needed the tidyverse library to do this but I think it was worth it.  You should also notice that I created a function for doing the percent too!
+
 ## Scatter Plot
 
 Let's compare height and weight as we will surely find some correlation there!
