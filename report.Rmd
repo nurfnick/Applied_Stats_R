@@ -47,7 +47,17 @@ data %>%
   group_by(Sport) %>%
   summarize(Frequency = length(Sport),RelativeFrequency = percent(length(Sport)/271116))
 ```
-Such a nicer, usable table!  I needed the tidyverse library to do this but I think it was worth it.  You should also notice that I created a function for doing the percent too!
+
+Such a nicer, usable table!  I needed the tidyverse library to do this but I think it was worth it.  You should also notice that I created a function for doing the percent too!  Take a minute and try to understand what that function is doing because somethings will need to be modified to make it work for your data!
+
+Let's look at a couple of the sports.  Athletics, cycling and rowing are of interest to me.
+
+```{r}
+sports <- c('Athletics','Cycling', 'Rowing')
+
+ggplot(subset(data, Sport %in% sports), aes(Sport,colour = Sex)) +
+  geom_bar()
+```
 
 ## Scatter Plot
 
@@ -60,7 +70,9 @@ g <- ggplot(data, aes(Height, Weight, colour = Sex)) +
 ggMarginal(g, type = "histogram")
 ```
 
-I stuck the color in here to see the differences between the sexes.  Finding that there most likely will be a significant difference in the regression between the sexes, I added the regression lines as well, 'lm' is the linear method.
+I stuck the color in here to see the differences between the sexes.  Finding that there most likely will be a significant difference in the regression between the sexes, I added the regression lines as well, 'lm' is the linear method.  The histograms on the outside are all about looking at the normality of the data. 
+
+I will check the normality in another way.  QQ-Plots!
 
 ```{r}
 ggplot(data, aes(sample = Height)) + 
@@ -84,3 +96,5 @@ ggplot(data[ which(data$Sex == 'M'),],aes(sample = Weight)) +
   stat_qq() +
   stat_qq_line()
 ```
+
+Both deviate from the line.  Essentially that suggests that our data is not normal.
