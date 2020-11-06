@@ -55,8 +55,29 @@ Let's look at a couple of the sports.  Athletics, cycling and rowing are of inte
 ```{r}
 sports <- c('Athletics','Cycling', 'Rowing')
 
-ggplot(subset(data, Sport %in% sports), aes(Sport,colour = Sex)) +
+ggplot(subset(data, Sport %in% sports), aes(Sport,fill = Sex)) +
   geom_bar()
+```
+Wow so many more men than women!  Let's see if the number of medals is as far apart.
+```{r}
+table(data$Medal,data$Sex)
+```
+Clearly there have been way more men's medals awarded then women's medals.  Let's see if we can figure out what year women start competing at the same level as the men.
+```{r}
+table(data$Sex,data$Year)
+```
+Interestingly the female contingent is still smaller than the male.  I wonder if there are less medals awarded too.
+```{r}
+year16 <- data[which(data$Year == 2016),]
+table(year16$Sex,year16$Medal)
+```
+Yes, less medals all the way around in the most recent year.  
+
+I guess I should do nationality counts and look at the number of medals won too!
+```{r}
+data %>%
+  group_by(Medal,Team,Sex) %>%
+  summarize(Medals = length(Medal))
 ```
 
 ## Scatter Plot
