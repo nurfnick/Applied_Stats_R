@@ -91,9 +91,30 @@ Okay well again there is just too many teams!  I wonder if there is a gender dif
 ```{r}
 data %>%
   group_by(Sex) %>%
-  summarize(AverageAge = mean(Age, na.rm = TRUE), StandardDeviation = StandardDeviation(Age), SampleSize = length(Age))
+  summarize(AverageAge = mean(Age, na.rm = TRUE), StandardDeviation = sd(Age, na.rm = TRUE), SampleSize = length(Age))
 ```
-I bet those are statistically significant differences!
+I bet those are statistically significant differences! 
+
+```{r AgeTest}
+t.test(data$Age~data$Sex)
+```
+We see that yes indeed the differences in ages are significant!  Lets visualize this too!
+```{r BoxSexAge}
+ggplot(data = data,aes(x= Age, y =Sex))+
+  geom_boxplot()
+```
+
+Seriously who are all these ancient olympians?
+
+```{r}
+outliers <- boxplot.stats(data$Age)$out #finds the outliers
+oldies <- data[which(data$Age %in% c(outliers)),] #grabs all the data from the outliers and renames it
+
+oldies %>%
+  group_by(Sport) %>%
+  summarize(AverageAge = mean(Age), MaxAge = max(Age), MinAge = min(Age))
+```
+Well the 97 year old participated in 'Art Competitions'...  This table is misleading in that I am only looking at the outliers!  There is also a 10 year old gymnast!
 
 ## Scatter Plot
 
