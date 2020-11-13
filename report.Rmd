@@ -79,6 +79,21 @@ data %>%
   group_by(Medal,Team,Sex) %>%
   summarize(Medals = length(Medal))
 ```
+Way too much data there to synthesize!
+
+Let's look at age and Team.
+```{r}
+data %>%
+  group_by(Team) %>%
+  summarize(AveargeAge = mean(Age, na.rm = TRUE))
+```
+Okay well again there is just too many teams!  I wonder if there is a gender difference in age?
+```{r}
+data %>%
+  group_by(Sex) %>%
+  summarize(AverageAge = mean(Age, na.rm = TRUE), StandardDeviation = StandardDeviation(Age), SampleSize = length(Age))
+```
+I bet those are statistically significant differences!
 
 ## Scatter Plot
 
