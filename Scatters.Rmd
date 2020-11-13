@@ -1,0 +1,73 @@
+---
+title: "ScatterPlots"
+author: "Nicholas Jacob"
+date: "11/13/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+library(ggplot2)
+library(ggExtra)
+library(tidyverse)
+library(GGally)
+
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+
+```
+
+## Scatter Plot
+
+Let's compare height and weight as we will surely find some correlation there!
+
+```{r scatter, echo=FALSE}
+g <- ggplot(data, aes(Height, Weight, colour = Sex)) + 
+  geom_point() +
+  geom_smooth(method="lm")
+ggMarginal(g, type = "histogram")
+```
+
+I stuck the color in here to see the differences between the sexes.  Finding that there most likely will be a significant difference in the regression between the sexes, I added the regression lines as well, 'lm' is the linear method.  The histograms on the outside are all about looking at the normality of the data. 
+
+I will check the normality in another way.  QQ-Plots!
+
+```{r}
+ggplot(data, aes(sample = Height)) + 
+  stat_qq() +
+  stat_qq_line()
+```
+```{r}
+ggplot(data, aes(sample = Weight)) + 
+  stat_qq() +
+  stat_qq_line()
+```
+QQ-Plots are all about looking at the normality of the datasets.  Height fits very well on the line but Weight does not!  I wonder if it will do better by restricting the genders.
+```{r}
+ggplot(data[ which(data$Sex == 'F'),],aes(sample = Weight)) +
+  stat_qq() +
+  stat_qq_line()
+```
+
+```{r}
+ggplot(data[ which(data$Sex == 'M'),],aes(sample = Weight)) +
+  stat_qq() +
+  stat_qq_line()
+```
+
+Both deviate from the line.  Essentially that suggests that our data is not normal.
+
+I am going to continue anyway but I should be wary of my statistics, in particularly my $p$ value!
+
+```{r}
+fit <- lm(Weight ~ Height + Sex, data)
+summary(fit)
+```
+All the variables are significant!  Being male adds about 5 kilos!
+
+
+I don't know about you but I am interested to see if the year makes a difference.  Maybe we are breeding larger athletes?  I'll tack on sport too!
+```{r multipleRegression}
+fit <- lm(Weight ~ Height + Sex + Year + Sport, data)
+summary(fit)
+```
+
+Interestingly some sports make a big difference and a few don't matter!  Can you predict which ones will matter and why?

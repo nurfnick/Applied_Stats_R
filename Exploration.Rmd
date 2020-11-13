@@ -5,7 +5,7 @@ date: "10/22/2020"
 output: html_document
 ---
 
-```{r setup}
+```{r setup, include = False}
 library(ggplot2)
 library(ggExtra)
 library(tidyverse)
@@ -145,10 +145,10 @@ ggpairs(data, columns = c("Sex","Age", "Height", "Weight", "Year"), aes(color = 
 ```
 Sorry, I love crazy visualizations and this pairs ideas is one of them!  You can clearly tell when women start participating in olympics and when they didn't hold them!
 
-Here is the base R version of the above.  It only works on numeric values
-```{r}
-pairs(select_if(data,is.numeric))
-```
+%Here is the base R version of the above.  It only works on numeric values
+%```{r}
+%pairs(select_if(data,is.numeric))
+%```
 
 Okay last exploration I promise!
 ```{r}
