@@ -70,4 +70,4 @@ fit <- lm(Weight ~ Height + Sex + Year + Sport, data)
 summary(fit)
 ```
 
-Interestingly some sports make a big difference and a few don't matter!  Can you predict which ones will matter and why?
+Year is not statistically significant.  Interestingly some sports make a big difference and a few don't matter!  Can you predict which ones will matter and why?
