@@ -1,0 +1,55 @@
+---
+title: "Bootstrapping and Cross Validation"
+author: "Nicholas Jacob"
+date: "11/15/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+library(ggplot2)
+library(ggExtra)
+library(tidyverse)
+library(GGally)
+library(boot)
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+
+```
+
+# Bootstrapping
+
+Next we will take the same data and explore the bootstrapping method.  Many of you were introduced to this in Intro to Stats.  I'll repeat my hypothesis test that the mean ages of men and women olympic athletes is different.  If we establish the mean age of men and women olympians as $\mu_M$ and $\mu_W$ respectivly, our null and alternative hypothesis will be:
+
+$$
+\begin{align}
+H_0:\ \mu_M=\mu_W\\
+H_A:\ \mu_M\neq\mu_W.
+\end{align}
+$$
+I have added the library boot to my packages that I load at the beginning of the document.
+
+
+```{r bootFullMean}
+samp_mean <- function(x, i) {
+  mean(x[i])
+}
+ages <- na.omit(data$Age) #needed to get rid of the NaN's
+results <- boot(ages, samp_mean, 100)
+plot(results)
+```
+```{r}
+boot.ci(results, type="perc")
+```
+Let's repeat this but first divide the data based on Sex.
+```{r}
+menages <- na.omit(data[which(data$Sex == 'M'),'Age'])
+womenages <- na.omit(data[which(data$Sex == 'F'),'Age'])
+bootM <- boot(menages, samp_mean,100)
+bootW <- boot(womenages, samp_mean, 100)
+boot.ci(bootM, type = 'perc')
+```
+```{r}
+boot.ci(bootW, type = 'perc')
+```
+
+We notice that the center of both confidence intervals fall outside of the other so we will reject the null hypothesis.
+
