@@ -94,7 +94,32 @@ data %>%
   group_by(Sex) %>%
   summarize(AverageAge = mean(Age, na.rm = TRUE), StandardDeviation = sd(Age, na.rm = TRUE), SampleSize = length(Age))
 ```
-I bet those are statistically significant differences! 
+I bet those are statistically significant differences! I'll state my hypotheses as
+$$
+H_0:\ \mu_M = \mu_W\\
+H_A:\ \mu_M\neq \mu_W.
+$$
+I almost always just examine not equal.  If I go by formula
+```{r hypothesisFormula}
+serror <- sqrt(5.795252^2/74522+6.474972^2/196594)
+degrees <- 74521
+xbarMen <- 26.27756
+xbarFe <- 23.73288
+
+t <- (xbarMen - xbarFe)/serror
+alpha = .05 
+thalfalpha = qt(1-alpha/2, df=degrees) 
+c(-thalfalpha, thalfalpha) 
+t
+```
+I am way outside the confidence interval!  Let's get a $p$ value too!
+```{r}
+2*(1-pt(t,degrees))
+```
+Well that was expected!  The $p$ value is zero because there is no way those means could be equal!
+
+I'll repeat this test using the built in function.  If your data is loaded into the program you should just use the built-ins.  They will give you a more accurate result!
+
 
 ```{r AgeTest}
 t.test(data$Age~data$Sex)
@@ -104,6 +129,9 @@ We see that yes indeed the differences in ages are significant!  Lets visualize 
 ggplot(data = data,aes(x= Age, y =Sex))+
   geom_boxplot()
 ```
+
+
+
 
 Seriously who are all these ancient olympians?
 
@@ -157,3 +185,22 @@ ggplot(data, aes(x = Year, color = Sex)) +
 ```
 Anybody know why there wasn't olympics held in to two dips?  The one really tall bar was when they held the summer and winter olympics in the same year.
 
+Lastly I thought maybe I should show the normal distribution and how to get R to do it.
+```{r}
+pnorm(2)#probability of z=2 everything to the left!
+pnorm(2,lower.tail = FALSE) #everything to the right
+qnorm(.975) #z value for when p =.975 this is the z critical for a two tailed 95% CI
+```
+I think you can do a test too.  Proportions are normal.  I'll check out gender!
+```{r}
+usathletes = data[which(data$Team=='United States'),]
+frathletes = data[which(data$Team=='France'),]
+frx = sum(frathletes$Sex=="M",na.rm = TRUE)
+
+usx = sum(usathletes$Sex=="M",na.rm = TRUE)
+frn = length(frathletes$Sex)
+usn = length(usathletes$Sex)
+prop.test(c(frx,usx),c(frn,usn))
+```
+
+This was harder than I thought.  I know we haven't covered this but I am comparing two proportions, french and us proportion of males.  The french have a statistically higher proportion of males.
