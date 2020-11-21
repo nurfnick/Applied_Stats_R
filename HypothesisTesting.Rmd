@@ -1,0 +1,127 @@
+---
+title: "Hypothesis Testing With R"
+author: "Nicholas Jacob"
+date: "11/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Keep It Simple
+
+My goal of this document is to show you how to do your homeworks by using R and more specifically base R (no packages!)  I am not going to load any data so I'll have to be given the statistics, just like the WeBWorK questions.  You should notice how unrealistic this is.  Of course you would normally have the data loaded...
+
+
+1. 45 people are randomly selected and the accuracy of their wristwatches is checked, with positive errors representing watches that are ahead of the correct time and negative errors representing watches that are behind the correct time. The 45 values have a mean of 93sec and a population standard deviation of 172sec. Use a 0.01 significance level to test the claim that the population of all watches has a mean of 0sec (use a two-sided alternative).
+
+To tackle this and any hypothesis test you should state your null and alternative hypothesis.
+$$
+H_0: \mu = 0\\
+H_A:\mu\neq 0
+$$
+Then we will use a test statistic
+$$
+z = \frac{\overline x-\mu}{\frac{\sigma}{\sqrt n}}
+$$
+We pick this test statistic because the population standard deviation was given.
+
+```{r }
+xbar = 93
+sigma = 172
+n = 45
+
+z = xbar/(sigma/sqrt(n))
+z
+```
+To do the corresponding $p$ value, I will need to use the pnorm function but that will give me everything to the left of the $z$ value.  Here I want everything to the right and I need to double it because it is a two tailed alternative hypothesis.
+```{r}
+2*(1-pnorm(z))
+```
+If I was asked to include the confidence interval, I could get the critical $z$ values by using the qnorm function.  Again though I have to be careful about the two tails!  Let's do 95% because that is traditional.  I'll also need the standard error (it is the thing in the denominator in the test statistic)
+
+$$
+SE = \frac{\sigma}{\sqrt{n}}
+$$
+
+```{r}
+alpha = 0.05
+zcrit = qnorm(1-alpha/2)
+serror = sigma/sqrt(n)
+c(zcrit*serror,zcrit*serror)
+```
+I used the c to write both values.  This is the confidence interval about the mean $\mu$.  Notice this interval does not contain $\overline x$.  So we can reject the null hypothesis.
+
+
+2. Golf-course designers have become concerned that old courses are becoming obsolete since new technology has given golfers the ability to hit the ball so far. Designers, therefore, have proposed that new golf courses need to be built expecting that the average golfer can hit the ball more than 245 yards on average. Suppose a random sample of 102 golfers be chosen so that their mean driving distance is 248.7 yards, with a standard deviation of 49.7. 
+
+Here my hypothesis is one tailed.  I am trying to show that things have improved!
+$$
+H_0: \mu = 245\\
+H_A: \mu >245
+$$
+This time, I do not know the population standard deviation only the sample standard deviation so I will use a different test statistic.
+$$
+t = \frac{\overline x-\mu}{\frac{s}{\sqrt n}}
+$$
+```{r}
+mu = 245
+xbar = 248.7
+s = 49.7
+n = 102
+
+t = (xbar-mu)/(s/sqrt(n))
+t
+```
+To use the $t$-student distribution, I also need to know the degrees of freedom.  For that I am going to use $n-1$.  There are several improvements that can be done to the degrees of freedom but for your homework, $df = n-1$ will suffice.  The function pt will give us the probability 
+
+```{r}
+df = n-1
+1-pt(t,df)
+```
+If I want a critical $t$ for say 90%.
+```{r}
+tcrit = qt(.90,df)
+tcrit
+```
+
+We see that we are less than are critical $t$ so we will fail to reject the null hypothesis.
+
+3. Two independent samples have been selected, 75 observations from population 1 and 100 observations from population 2. The sample means have been calculated to be $\overline x_1=7.6$ and $\overline x_2=8.2$. From previous experience with these populations, it is known that the variances are $\sigma^2_1=32$ and $\sigma^2_2=35$. 
+
+$$
+H_0: \mu_1 = \mu_2\\
+H_A: \mu_1\neq\mu_2
+$$
+
+Here we are comparing two means.  We will use a test statistic of
+$$
+z = \frac{(\overline x_1-\overline x_2)-0}{\sqrt{\frac{\sigma_1^2}{n_1}+\frac{\sigma_2^2}{n_2}}}
+$$
+This one is $z$ because I know the population variances!  I have assumed that the means are equal here too, that is why I am subtracing zero.  So we set it up in R just like the other two.
+```{r}
+xbar1 = 7.6
+xbar2 = 8.2
+sigma1 = 32
+sigma2 = 35
+n1 = 75
+n2 = 100
+
+se = sqrt(sigma1/n1+sigma2/n2)
+z = (xbar1-xbar2)/se
+se
+```
+
+
+```{r}
+1-pnorm(z)
+```
+I'll fail to reject my null hypothesis, I do not have evidence to suggest the alternative that they are not equal.
+
+
+My 95% confidence interval will be
+```{r}
+zcrit = qnorm(1-.05/2)
+c((xbar1-xbar2)-zcrit*se,(xbar1-xbar2)+zcrit*se)
+```
