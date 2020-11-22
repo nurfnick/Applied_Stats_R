@@ -1,0 +1,81 @@
+---
+title: "Correlation and Regression"
+author: "Nicholas Jacob"
+date: "11/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Regression Homework Helper
+
+I am again going to try to keep it simple by using base R but doing some of the homework questions.
+
+1. Use a scatterplot and the linear correlation coefficient r to determine whether there is a correlation between the two variables. (Note: Use software, and don't forget to look at the scatterplot!) 
+
+First I'll load the data.  I could load the data via a csv but to keep the reprodicibility high, I am going to manually enter the data.
+```{r}
+x <-c(0.8,1.4 ,2,3.5,4.5,5.4,6.1,7.8,8.4,9.7,10.3,11.7,12.8,13.2,14.8)
+y <- c(14.2,13.6,13,11.5,10.5,9.6,8.9,7.2,6.6,5.3,4.7,3.3,2.2,1.8,0.2)
+
+plot(x,y)
+```
+That looks rather nicely linear!  Of course it is negatively correlated (the slope is negative!).
+
+To get the correlation $r$
+
+```{r}
+
+cor(x,y,method = "pearson")
+```
+We are using the 'Pearson' correlation method here.  If I call the **cor** fucntion without that it will give me several answers.
+
+Let's repeat this using the definition of correlation!
+$$
+r = \frac{\sum_{i=1}^n(x_i-\overline x)(y_i-\overline y )}{(n-1)s_xs_y}
+$$
+```{r}
+sx = sd(x)
+sy = sd(y) 
+n = length(x)
+xbar = mean(x)
+ybar = mean(y)
+
+
+numerator = mean((x-xbar)*(y-ybar))*n
+
+numerator/((n-1)*sx*sy)
+```
+Sweet!  There are a couple of interesting things I did above!  I took a sequence $x$ and subtracted a single value $\overline x$ from each value.  I also multiplied sequences.
+
+Let's also get the equation of the linear relationship.
+
+```{r}
+lm(y~x)
+
+```
+This brings in a couple of interesting R calls.  I needed to do a function so I did **y~x** you see that I am making a function!  Let's define a function too so I can make some predicitons.
+```{r}
+fit = lm(y~x)
+
+slope = coef(fit)[2]
+intercept = coef(fit)[1]
+
+yhat <- function(xpredict){
+  return( slope*xpredict+intercept)
+}
+
+yhat(10)
+```
+So here I did it with a user defined function.  While I was doing this I noticed the following command I could have used!
+
+```{r}
+xToPredict <-data.frame(x = c(10))
+predict(fit, newdata = xToPredict)
+```
+We may want commands like this later!
+
+
+
