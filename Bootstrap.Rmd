@@ -17,7 +17,7 @@ data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4v
 
 # Bootstrapping
 
-Next we will take the same data and explore the bootstrapping method.  Many of you were introduced to this in Intro to Stats.  I'll repeat my hypothesis test that the mean ages of men and women olympic athletes is different.  If we establish the mean age of men and women olympians as $\mu_M$ and $\mu_W$ respectivly, our null and alternative hypothesis will be:
+Next we will take the same data and explore the bootstrapping method.  Many of you were introduced to this in Intro to Stats.  I'll repeat my hypothesis test that the mean ages of men and women olympic athletes are different.  If we establish the mean age of men and women olympians as $\mu_M$ and $\mu_W$ respectively, our null and alternative hypothesis will be:
 
 $$
 \begin{align}
@@ -25,10 +25,11 @@ H_0:\ \mu_M=\mu_W\\
 H_A:\ \mu_M\neq\mu_W.
 \end{align}
 $$
-I have added the library boot to my packages that I load at the beginning of the document.
+I have added the library boot to my packages that I load at the beginning of the document.  In order to run the boot command you have to pass it a function that can be sub-divided.  Essentially you just have to pass it a function that slices the dataset.  Mimic what I do below and you should be golden!
 
 
 ```{r bootFullMean}
+set.seed(42)
 samp_mean <- function(x, i) {
   mean(x[i])
 }
@@ -51,5 +52,34 @@ boot.ci(bootM, type = 'perc')
 boot.ci(bootW, type = 'perc')
 ```
 
-We notice that the center of both confidence intervals fall outside of the other so we will reject the null hypothesis.
+We notice that the center of both confidence intervals fall outside of the other so we will reject the null hypothesis.  The mean age of men and women are different.
 
+Let's look at a non-parametric statistic.  I am going to ask if the median age of winter athletes is different from summer athletes.
+
+```{r}
+winterAge <- na.omit(data[which(data$Season== 'Winter'),'Age'])
+summerAge <- na.omit(data[which(data$Season== 'Summer'),'Age'])
+median(winterAge)
+```
+```{r}
+median(summerAge)
+```
+
+Well they both have the same sample median so I doubt they will be different but let's test it anyway.
+$$
+H_0; m_S=m_W\\
+H_A: m_S\neq m_W
+$$
+```{r}
+samp_median <- function(x,i){
+  median(x[i])
+}
+
+bootW = boot(winterAge,samp_median,100)
+boot.ci(bootW, type = 'perc')
+```
+
+```{r}
+bootS = boot(summerAge, samp_median,100)
+boot.ci(bootS, type = 'perc')
+```
