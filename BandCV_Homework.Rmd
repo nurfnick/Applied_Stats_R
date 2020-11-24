@@ -1,0 +1,34 @@
+---
+title: "Bootstrap and Cross Validation Homework"
+author: "Nicholas Jacob"
+date: "11/24/2020"
+output: html_document
+---
+
+```{r setup, include = F}
+library(boot)
+library(caret)
+set.seed(42)
+```
+You may use this document as a starting point for this assignment.  Your submission should be written in R and include all points addressed below.
+
+# Bootstrap
+
+To keep this asssignment simple, we are going to use the built in dataset **diamonds** that is included with R.  
+```{r diamonds}
+summary(diamonds)
+```
+1. A quick google search suggested that I should purchase a 1 carat diamond as an engagement ring.  Using bootstrapping, test the hypothesis that the mean is 1 carat.  Explain in words how to create a bootstrap and how to create a bootstrap distribution for the mean.  Make sure to state the hypothesis, express a confidence interval, $p$ value, and state the conclusion in the proper statistical terms for the mean.
+
+
+
+# Cross Validation
+
+The multiple linear regression using carat, depth, and table to predict price is done below.  
+
+```{r }
+fit <- lm(price ~ carat +depth + table, data = diamonds)
+summary(fit)
+```
+2. Repeat this linear model using 10 fold cross validation.  Explain in words what you are doing.  Examine one of the folds carefully explaining the steps involved.  Examine the $R^2$ value and residual mean standard error.  Compare the values you get to the original model.
+
