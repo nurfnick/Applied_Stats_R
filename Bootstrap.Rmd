@@ -11,6 +11,7 @@ library(ggExtra)
 library(tidyverse)
 library(GGally)
 library(boot)
+library(caret)
 data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
 
 ```
@@ -25,7 +26,7 @@ H_0:\ \mu_M=\mu_W\\
 H_A:\ \mu_M\neq\mu_W.
 \end{align}
 $$
-I have added the library boot to my packages that I load at the beginning of the document.  In order to run the boot command you have to pass it a function that can be sub-divided.  Essentially you just have to pass it a function that slices the dataset.  Mimic what I do below and you should be golden!
+I have added the library **boot** to my packages that I load at the beginning of the document and I'll **set.seed**, there is nothing special about the number you pick, if you change it you'll get another random, but repeatable action.  Any Douglas Adams fans know why I use 42?  In order to run the boot command you have to pass it a function that can be sub-divided.  Essentially you just have to pass it a function that slices the dataset.  Mimic what I do below and you should be golden!
 
 
 ```{r bootFullMean}
@@ -82,4 +83,25 @@ boot.ci(bootW, type = 'perc')
 ```{r}
 bootS = boot(summerAge, samp_median,100)
 boot.ci(bootS, type = 'perc')
+```
+
+Since the Confidence intervals are the same, we will fail to reject the null hypothesis.  Thus we do not have evidence to suggest that the median age of winter and summer athletes is different.  It might have been best to do the median age of men and women but sometimes I just like to explore.  I should also note that in science a fail to reject is almost never reported.  This is sometimes called the 'file drawer problem' in that research that yields a 'fail to reject the null hypothesis' is never reported.  This is an issue because if an erroneous experiment is repeated 20 times, 19 of these will fail to reject but the one that does reject the null hypothesis will be published.  Sometimes this is also referred to as the reproducibility crisis.  It is a big problem in the social science literature!
+
+# Cross Validation
+
+I'd like to do cross validation in two ways.  I am first going to do the traditional split, 66%.  I'll fit the model to the training data and then check out the results on the remaining 34% testing data.
+
+```{r}
+trainingSamples <- createDataPartition(data$ID,p=.66,list = FALSE)
+trainData <- data[trainingSamples,]
+testData <- data[-trainingSamples,]
+
+model <- lm(Age ~ Sport + Height + Weight, data = trainData)
+summary(model)
+```
+
+I specifically picked a silly model.  Does anybody think we can predict the age of an athlete by their sport, height or weight?  You should notice though many of the coefficients are statistically significant.  Let's check out how this does on the testing data.
+
+```{r}
+predict(model,testData)
 ```
