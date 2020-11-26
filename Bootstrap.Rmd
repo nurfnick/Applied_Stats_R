@@ -116,4 +116,21 @@ data.frame(R2 = R2(pre, tes ),
            RMSE = RMSE(pre, tes ))
 ```
 
-I had to do some fancy work there to make this work because of all the na values.  Notice that I sliced both the prediction and the actual data cutting out the **NA** before I proceeded.  I've left my **NA** in my data to show you that while most stuff will work, you sometimes have to do heroics to get around it!  I'll also point out that this model does not do that poorly on data so maybe there is some reason to expect the sport to correlate to the age of the athlete although I will note that there is not really that big of swing except maybe between swimmers and golfers.  Athletics is the intercept so it does not have a coefficient.  
+I had to do some fancy work there to make this work because of all the na values.  Notice that I sliced both the prediction and the actual data cutting out the **NA** before I proceeded.  I've left my **NA** in my data to show you that while most stuff will work, you sometimes have to do heroics to get around it!  I'll also point out that this model does not do that poorly on testing data so maybe there is some reason to expect the sport to correlate to the age of the athlete although I will note that there is not really that big of swing except maybe between swimmers and golfers.  Athletics is the intercept so it does not have a coefficient.  
+
+Let's repeat this but do the $k$-fold cross validation.  I'll use $k=10$ and run the exact same model ten times.  This time we'll train on 90% of the data and test on a slice of 10%.  Then we will reintroduce that 10% and hold back a different 10% of the data.  We repeat this ten times until all slices have been held back as the training data.
+```{r}
+dataNARemoved <- na.omit(dataLessSports)
+```
+This piece of code removed all the rows that had an NA values.  Now I think I am golden to run the cross validation
+```{r}
+train.control <- trainControl(method = "cv", number = 10)
+
+model <- train(Age ~ Sport + Height + Weight, data = dataNARemoved, 
+               method = "lm",
+               trControl = train.control)
+# Summarize the results
+print(model)
+```
+
+Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependant on a few values for the fit).
