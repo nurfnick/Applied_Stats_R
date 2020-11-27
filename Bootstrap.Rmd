@@ -133,4 +133,82 @@ model <- train(Age ~ Sport + Height + Weight, data = dataNARemoved,
 print(model)
 ```
 
-Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependant on a few values for the fit).
+```{r}
+summary(model)
+```
+
+Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependent on a few values for the fit).
+
+Let's examine the plots.
+```{r}
+reg <- lm(Age~Height, data = dataNARemoved)
+plot(dataNARemoved$Height,dataNARemoved$Age)
+abline(reg,col = 'Red')
+abline(24,.0575) 
+```
+
+I struggled to figure out how to visualize this.  Maybe you will have some better ideas.  Clearly the one factor and the multi-factor regressions should not be compared like this.  I also struggled to get the data directly out of the 10-fold cross validation so I copied the estimates by hand.  This is what I get for creating too complicated of a model!
+
+# Keep it Simple Stupid
+
+While there is nothing wrong with what I did above, I have made everything super complicated.  Rather that delete the above, I thought I'd just add another section and repeat the exercise on a simpler model.
+
+I am going to look at **Height** as a predictor of **Weight**  We have seen this earlier as an excellent model.
+```{r}
+HWfit <- lm(Weight ~ Height, data = data, na.action = na.omit)
+
+with(data,plot(Height, Weight))
+abline(HWfit)
+
+#ggplot(data = data, aes(Height,Weight)) +
+#  geom_smooth(method = 'lm') +
+#  geom_point()
+```
+
+```{r}
+confint.lm(HWfit)
+```
+Okay so now I'll repeat the withholding of a third of the data and do the fitting and make predictions on the testing data.
+```{r}
+
+dataHW <- data[c('ID','Height','Weight')]
+dataHW <-na.omit(dataHW)
+
+
+
+trainingSamples <- createDataPartition(dataHW$ID,p=.66,list = FALSE)
+trainData <- dataHW[trainingSamples,]
+testData <- dataHW[-trainingSamples,]
+
+model <- lm(Weight ~ Height, data = trainData)
+summary(model)
+```
+```{r}
+confint.lm(model)
+```
+These confidence intervals are also super close.  Everything suggests that my model is not overfit.
+
+Cool, now I'll make some predictions on the testing data
+```{r}
+pre = predict(model,testData)
+
+tes <- testData$Weight
+
+data.frame(R2 = R2(pre, tes ),
+           RMSE = RMSE(pre, tes ))
+```
+
+Not a giant jump!  Let's check out the prediction on a famous Olympian, Micheal Phelps
+```{r}
+data[which(data$Name == 'Michael Fred Phelps, II'),]
+mpPrediction <- predict(model,data[which(data$Name == 'Michael Fred Phelps, II'),])
+
+```
+
+We see that we under predict his weight.
+```{r}
+mpPrediction[1]-91
+
+```
+
+Okay I am going to leave it there.  The linear model clearly works.  Again when we run cross validation, we are really asking to check if the model is overfit.  We should not see that in a robust linear model but it may be possible if you have a few outliers that really mess things up!  Recall we are supposed to look for outliers before we fit a regression by looking at the QQ-Plots.
