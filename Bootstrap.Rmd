@@ -137,6 +137,10 @@ print(model)
 summary(model)
 ```
 
+```{r}
+confint(model)
+```
+
 Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependent on a few values for the fit).
 
 Let's examine the plots.
@@ -183,6 +187,18 @@ testData <- dataHW[-trainingSamples,]
 model <- lm(Weight ~ Height, data = trainData)
 summary(model)
 ```
+I am going to add to the data frame a variable that ask whether the data was in the testing or the training data.  I'll use that to graph the linear regression
+
+```{r}
+dataHW[trainingSamples,'Test_Train']='training'
+dataHW[-trainingSamples,'Test_Train']='testing'
+
+ggplot(data = dataHW, mapping = aes(Height,Weight,color = Test_Train))+
+  geom_jitter() +
+  geom_smooth(method = lm)
+```
+Here I'll add the confidence intervals from the model.  
+
 ```{r}
 confint.lm(model)
 ```
