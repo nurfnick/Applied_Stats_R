@@ -1,5 +1,5 @@
 ---
-title: "Bootstrapping and Cross Validation"
+title: "Bootstrapping Project"
 author: "Nicholas Jacob"
 date: "11/15/2020"
 output: html_document
@@ -16,7 +16,7 @@ data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4v
 
 ```
 
-# Bootstrapping
+# Mean Ages
 
 Next we will take the same data and explore the bootstrapping method.  Many of you were introduced to this in Intro to Stats.  I'll repeat my hypothesis test that the mean ages of men and women olympic athletes are different.  If we establish the mean age of men and women olympians as $\mu_M$ and $\mu_W$ respectively, our null and alternative hypothesis will be:
 
@@ -41,6 +41,7 @@ plot(results)
 ```{r}
 boot.ci(results, type="perc")
 ```
+# Sex and Age
 Let's repeat this but first divide the data based on Sex.
 ```{r}
 menages <- na.omit(data[which(data$Sex == 'M'),'Age'])
@@ -49,12 +50,45 @@ bootM <- boot(menages, samp_mean,100)
 bootW <- boot(womenages, samp_mean, 100)
 boot.ci(bootM, type = 'perc')
 ```
+
 ```{r}
 boot.ci(bootW, type = 'perc')
 ```
 
-We notice that the center of both confidence intervals fall outside of the other so we will reject the null hypothesis.  The mean age of men and women are different.
+We notice that the center of both confidence intervals fall outside of the other so we will reject the null hypothesis.  The mean age of men and women are different.  The $p$ value of obtaining the women's mean age in a men's bootstrap is
+```{r}
+mean(bootM$t<bootW$t0)
+```
+Here the **$t** returned the bootstrap distribution and the **$t0** gave the mean of the bootstrap distribution.
 
+# Sex and Age Looking at Difference
+
+So the above analysis will work but will not give me an estimate of where the difference of the mean ages of the men and women actually lie.  Because of this, I will be hard pressed to recover a $p$ value and get a good estimate of the difference in the ages.  To do that (and what I should have done in the first place!) I am going to repeat this bootstrap but look at the difference of the means when the people are randomly assigned gender.  This is one of the difficulties of computing $p$ values is that you really must assume the null hypothesis is true, gender does not play a role in age.
+
+```{r}
+diff2 = function(d1,i){
+    d = d1; 
+    d$group <- d$Sex[i];  # randomly re-assign groups
+    Mean= tapply(X=d$Age, INDEX=d$group, mean)
+    Diff = Mean[1]-Mean[2]
+    Diff
+}
+
+d1 <- na.omit(data[c('Sex','Age')])
+
+diffboot = boot(data = d1,statistic= diff2, R=100)
+print(diffboot)
+
+```
+
+So then the actual difference between the ages was -2.544681 and under the null hypothesis that there should be no difference I found that!  For the $p$ value, I'll ask how many do in fact fall outside of that range and take an average.
+```{r p-value}
+mean(abs(diffboot$t)>abs(diffboot$t0))
+```
+A $p$ value of zero is extreme, but honestly the difference in ages here is very extreme because of how big the sample size actually is!
+
+
+# Non-Parametric Stat
 Let's look at a non-parametric statistic.  I am going to ask if the median age of winter athletes is different from summer athletes.
 
 ```{r}
@@ -85,146 +119,52 @@ bootS = boot(summerAge, samp_median,100)
 boot.ci(bootS, type = 'perc')
 ```
 
-Since the Confidence intervals are the same, we will fail to reject the null hypothesis.  Thus we do not have evidence to suggest that the median age of winter and summer athletes is different.  It might have been best to do the median age of men and women but sometimes I just like to explore.  I should also note that in science a fail to reject is almost never reported.  This is sometimes called the 'file drawer problem' in that research that yields a 'fail to reject the null hypothesis' is never reported.  This is an issue because if an erroneous experiment is repeated 20 times, 19 of these will fail to reject but the one that does reject the null hypothesis will be published.  Sometimes this is also referred to as the reproducibility crisis.  It is a big problem in the social science literature!
+Since the Confidence intervals are the same, we will fail to reject the null hypothesis.  Thus we do not have evidence to suggest that the median age of winter and summer athletes is different.  
 
-# Cross Validation
-
-I'd like to do cross validation in two ways.  I am first going to do the traditional split, 66%.  I'll fit the model to the training data and then check out the results on the remaining 34% testing data.  
-
+I should also do the $p$ value here.  Again I'm comparing values so to get an accurate $p$ value I need to assume the null hypothesis is true, assume that the sports have no effect.
 ```{r}
-sports = c('Swimming', 'Tennis', 'Rowing', 'Gymnastics', 'Golf', 'Athletics', 'Bobsleigh')
+diff3 = function(d2,i){
+    d = d2; 
+    d$group <- d$Season[i];  # randomly re-assign groups
+    Median= tapply(X=d$Age, INDEX=d$group, median)
+    Diff = Median[1]-Median[2]
+    Diff
+}
 
-dataLessSports <- data[which(data$Sport %in% sports),]
+d2 <- na.omit(data[c('Season','Age')])
 
-trainingSamples <- createDataPartition(dataLessSports$ID,p=.66,list = FALSE)
-trainData <- dataLessSports[trainingSamples,]
-testData <- dataLessSports[-trainingSamples,]
+diffmedian = boot(data = d2, statistic = diff3, R = 100)
+print(diffmedian)
+```
+```{r}
+mean(abs(diffmedian$t)>abs(diffmedian$t0))
+```
+With a $p$ value above my rejection standard (I normally go with 5%), I will fail to reject my null hypothesis.
 
-model <- lm(Age ~ Sport + Height + Weight, data = trainData, na.action = na.omit)
-summary(model)
+I should also note that in science a fail to reject is almost never reported.  This is sometimes called the 'file drawer problem' in that research that yields a 'fail to reject the null hypothesis' is never reported.  This is an issue because if an erroneous experiment is repeated 20 times, 19 of these will fail to reject but the one that does reject the null hypothesis will be published.  Sometimes this is also referred to as the reproducibility crisis.  It is a big problem in the social science literature!
+
+
+Actually let's repeat doing the median of men and women.  I am not happy with my $p$ values yet and I can use the practice.
+
+$$
+H_0: m_M = m_W\\
+H_A: m_M\neq m_W
+$$
+```{r}
+diff4 = function(d1,i){
+    d = d1; 
+    d$group <- d$Sex[i];  # randomly re-assign groups
+    Median= tapply(X=d$Age, INDEX=d$group, median)
+    Diff = Median[1]-Median[2]
+    Diff
+}
+
+diffBootMedianAge = boot(data = d1, statistic = diff4, R=100)
+print(diffBootMedianAge)
+```
+```{r}
+mean(abs(diffBootMedianAge$t)>abs(diffBootMedianAge$t0))
 ```
 
-I specifically picked a silly model where I first restricted to a handful of sports.  Does anybody think we can predict the age of an athlete by their sport, height or weight?  You should notice though all of the coefficients are statistically significant.  Let's check out how this does on the testing data.
+Another stinking 0 but I am confident these are really different so yes let's say the ages of men and women are truly different!
 
-```{r}
-predictions = predict(model,testData)
-
-tes <- testData$Age[(!is.na(predictions)) & (!is.na(testData$Age))]
-pre <- predictions[(!is.na(predictions)) & (!is.na(testData$Age))]
-
-data.frame(R2 = R2(pre, tes ),
-           RMSE = RMSE(pre, tes ))
-```
-
-I had to do some fancy work there to make this work because of all the na values.  Notice that I sliced both the prediction and the actual data cutting out the **NA** before I proceeded.  I've left my **NA** in my data to show you that while most stuff will work, you sometimes have to do heroics to get around it!  I'll also point out that this model does not do that poorly on testing data so maybe there is some reason to expect the sport to correlate to the age of the athlete although I will note that there is not really that big of swing except maybe between swimmers and golfers.  Athletics is the intercept so it does not have a coefficient.  
-
-Let's repeat this but do the $k$-fold cross validation.  I'll use $k=10$ and run the exact same model ten times.  This time we'll train on 90% of the data and test on a slice of 10%.  Then we will reintroduce that 10% and hold back a different 10% of the data.  We repeat this ten times until all slices have been held back as the training data.
-```{r}
-dataNARemoved <- na.omit(dataLessSports)
-```
-This piece of code removed all the rows that had an NA values.  Now I think I am golden to run the cross validation
-```{r}
-train.control <- trainControl(method = "cv", number = 10)
-
-model <- train(Age ~ Sport + Height + Weight, data = dataNARemoved, 
-               method = "lm",
-               trControl = train.control)
-# Summarize the results
-print(model)
-```
-
-```{r}
-summary(model)
-```
-
-```{r}
-confint(model)
-```
-
-Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependent on a few values for the fit).
-
-Let's examine the plots.
-```{r}
-reg <- lm(Age~Height, data = dataNARemoved)
-plot(dataNARemoved$Height,dataNARemoved$Age)
-abline(reg,col = 'Red')
-abline(24,.0575) 
-```
-
-I struggled to figure out how to visualize this.  Maybe you will have some better ideas.  Clearly the one factor and the multi-factor regressions should not be compared like this.  I also struggled to get the data directly out of the 10-fold cross validation so I copied the estimates by hand.  This is what I get for creating too complicated of a model!
-
-# Keep it Simple Stupid
-
-While there is nothing wrong with what I did above, I have made everything super complicated.  Rather that delete the above, I thought I'd just add another section and repeat the exercise on a simpler model.
-
-I am going to look at **Height** as a predictor of **Weight**  We have seen this earlier as an excellent model.
-```{r}
-HWfit <- lm(Weight ~ Height, data = data, na.action = na.omit)
-
-with(data,plot(Height, Weight))
-abline(HWfit)
-
-#ggplot(data = data, aes(Height,Weight)) +
-#  geom_smooth(method = 'lm') +
-#  geom_point()
-```
-
-```{r}
-confint.lm(HWfit)
-```
-Okay so now I'll repeat the withholding of a third of the data and do the fitting and make predictions on the testing data.
-```{r}
-
-dataHW <- data[c('ID','Height','Weight')]
-dataHW <-na.omit(dataHW)
-
-
-
-trainingSamples <- createDataPartition(dataHW$ID,p=.66,list = FALSE)
-trainData <- dataHW[trainingSamples,]
-testData <- dataHW[-trainingSamples,]
-
-model <- lm(Weight ~ Height, data = trainData)
-summary(model)
-```
-I am going to add to the data frame a variable that ask whether the data was in the testing or the training data.  I'll use that to graph the linear regression
-
-```{r}
-dataHW[trainingSamples,'Test_Train']='training'
-dataHW[-trainingSamples,'Test_Train']='testing'
-
-ggplot(data = dataHW, mapping = aes(Height,Weight,color = Test_Train))+
-  geom_jitter() +
-  geom_smooth(method = lm)
-```
-Here I'll add the confidence intervals from the model.  
-
-```{r}
-confint.lm(model)
-```
-These confidence intervals are also super close.  Everything suggests that my model is not overfit.
-
-Cool, now I'll make some predictions on the testing data
-```{r}
-pre = predict(model,testData)
-
-tes <- testData$Weight
-
-data.frame(R2 = R2(pre, tes ),
-           RMSE = RMSE(pre, tes ))
-```
-
-Not a giant jump!  Let's check out the prediction on a famous Olympian, Micheal Phelps
-```{r}
-data[which(data$Name == 'Michael Fred Phelps, II'),]
-mpPrediction <- predict(model,data[which(data$Name == 'Michael Fred Phelps, II'),])
-
-```
-
-We see that we under predict his weight.
-```{r}
-mpPrediction[1]-91
-
-```
-
-Okay I am going to leave it there.  The linear model clearly works.  Again when we run cross validation, we are really asking to check if the model is overfit.  We should not see that in a robust linear model but it may be possible if you have a few outliers that really mess things up!  Recall we are supposed to look for outliers before we fit a regression by looking at the QQ-Plots.

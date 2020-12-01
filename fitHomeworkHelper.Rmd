@@ -1,0 +1,85 @@
+---
+title: "Goodness Of Fit Homework Helper"
+author: "Nicholas Jacob"
+date: "12/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Goodness of Fit
+
+We will be using the $\chi^2$ distribution.  We will calculate it using the the observed $O_i$ and the expected $E_i$.  Then
+$$
+\chi^2= \sum_{i=1}^n\frac{\left(O_i-E_i\right)^2}{E_i}
+$$
+It will have degrees of freedom $n-1$.  Remember to always use the actual values not the probabilities!
+
+
+1. Among drivers who have had a car crash in the last year, 100 were randomly selected and categorized by age, with the results listed in the table below.
+
+| Age     | Under 25 | 25-44 | 45-64 | Over 64 |
+|---------|----------|-------|-------|---------|
+| Drivers | 41       | 21    | 14    | 24      |
+
+If all ages have the same crash rate, we would expect (because of the age distribution of licensed drivers) the given categories to have 16%, 44%, 27%, 13% of the subjects, respectively. At the 0.05 significance level, test the claim that the distribution of crashes conforms to the distribution of ages. 
+
+So to investigate this we are given the observed in the table and the expected via percentages based on number of drivers in each group.  So I'll recreate this table in r and include both observed and expected.
+```{r}
+data = data.frame('observed'=c(41,21,14,24),'expected' = c(16,44,27,13))
+data
+```
+Nest we'll need to run the test
+```{r}
+chisq.test(data$observed, p=data$expected/100)
+```
+That doesn't seem very satisfying to me so I'd like to do it 'by hand' too.
+```{r}
+chi2 = sum((data$observed - data$expected)^2/data$expected)
+chi2
+```
+
+To get the probability based on the $\chi^2$, we use the **chisq** function.  Use a **p** in front to get a probability and a **q** in front to get a critical value.  $\chi^2$ is always one sided, only possitive values are possible and a perfect fit returns 0.
+```{r}
+pchisq(chi2,3)-1
+```
+
+```{r}
+qchisq(.95,3)
+```
+
+2. It has been suggested that the highest priority of retirees is travel. Thus, a study was conducted to investigate the differences in the length of stay of a trip for pre- and post-retirees. A sample of 707 travelers were asked how long they stayed on a typical trip. The observed results of the study are found below.
+
+| Number of Nights | Pre-retirement | Post-retirement | Total |
+|------------------|----------------|-----------------|-------|
+| 4−7              | 240            | 163             | 403   |
+| 8−13             | 79             | 74              | 153   |
+| 14−21            | 37             | 51              | 88    |
+| 22 or more       | 23             | 40              | 63    |
+| Total            | 379            | 328             | 707   |
+
+This problem is different than the other.  Here we are not asking does it follow and expected way but rather we are looking to see if there is any effect of the categorical variable 'retirement'.  By the way the null hypothesis says that retirement has no effect on the number of nights.  The alternative would say that retirement does have an effect.
+
+```{r}
+data2 = data.frame('pre' = c(240,79,37,23),'post'=c(163,74,51,40))
+data2
+```
+
+I don't type in any of the totals because r can do that much faster than I can!  The test in r is not hard either.
+```{r}
+chiresults = chisq.test(data2)
+print(chiresults)
+```
+
+We can also extract some other info from the test.  Expected values are,
+```{r}
+chiresults$expected
+```
+There area few other things you can access from the test like this but they are all on the printout so I won't do them all.  Here is the degrees of freedom.
+```{r}
+chiresults$parameter
+```
+
+One last note about doing these tables with multiple entries, the degrees of freedom is $(r-1)(c-1)$ where $r$ is the number of rows and $c$ is the number of columns.
