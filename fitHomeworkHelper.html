@@ -378,11 +378,11 @@ summary {
 </div>
 
 
-<div id="goodness-of-fit" class="section level1">
-<h1>Goodness of Fit</h1>
+<div id="goodness-of-fit-and-test-for-independence" class="section level1">
+<h1>Goodness of Fit and Test for Independence</h1>
 <p>We will be using the <span class="math inline">\(\chi^2\)</span> distribution. We will calculate it using the the observed <span class="math inline">\(O_i\)</span> and the expected <span class="math inline">\(E_i\)</span>. Then <span class="math display">\[
 \chi^2= \sum_{i=1}^n\frac{\left(O_i-E_i\right)^2}{E_i}
-\]</span> It will have degrees of freedom <span class="math inline">\(n-1\)</span>. Remember to always use the actual values not the probabilities!</p>
+\]</span> It will have degrees of freedom <span class="math inline">\(n-1\)</span>. Remember to always use the actual values not the probabilities in the calculation!</p>
 <ol style="list-style-type: decimal">
 <li>Among drivers who have had a car crash in the last year, 100 were randomly selected and categorized by age, with the results listed in the table below.</li>
 </ol>
@@ -415,7 +415,7 @@ data</code></pre>
 ## 2       21       44
 ## 3       14       27
 ## 4       24       13</code></pre>
-<p>Nest we’ll need to run the test</p>
+<p>Nest we’ll need to run the test, this function requires I pass expected probabilities.</p>
 <pre class="r"><code>chisq.test(data$observed, p=data$expected/100)</code></pre>
 <pre><code>## 
 ##  Chi-squared test for given probabilities
@@ -426,7 +426,7 @@ data</code></pre>
 <pre class="r"><code>chi2 = sum((data$observed - data$expected)^2/data$expected)
 chi2</code></pre>
 <pre><code>## [1] 66.65218</code></pre>
-<p>To get the probability based on the <span class="math inline">\(\chi^2\)</span>, we use the <strong>chisq</strong> function. Use a <strong>p</strong> in front to get a probability and a <strong>q</strong> in front to get a critical value. <span class="math inline">\(\chi^2\)</span> is always one sided, only possitive values are possible and a perfect fit returns 0.</p>
+<p>To get the probability based on the <span class="math inline">\(\chi^2\)</span>, we use the <strong>chisq</strong> function. Use a <strong>p</strong> in front to get a probability and a <strong>q</strong> in front to get a critical value. <span class="math inline">\(\chi^2\)</span> is always one sided, only positive values are possible and a perfect fit returns 0.</p>
 <pre class="r"><code>pchisq(chi2,3)-1</code></pre>
 <pre><code>## [1] -2.220446e-14</code></pre>
 <pre class="r"><code>qchisq(.95,3)</code></pre>
@@ -476,7 +476,7 @@ chi2</code></pre>
 </tr>
 </tbody>
 </table>
-<p>This problem is different than the other. Here we are not asking does it follow and expected way but rather we are looking to see if there is any effect of the categorical variable ‘retirement’. By the way the null hypothesis says that retirement has no effect on the number of nights. The alternative would say that retirement does have an effect.</p>
+<p>This problem is different than the other, sometimes it is called a test for independence. Here we are not asking does it follow and expected way but rather we are looking to see if there is any effect of the categorical variable ‘retirement’. By the way the null hypothesis says that retirement has no effect on the number of nights. The alternative would say that retirement does have an effect.</p>
 <pre class="r"><code>data2 = data.frame(&#39;pre&#39; = c(240,79,37,23),&#39;post&#39;=c(163,74,51,40))
 data2</code></pre>
 <pre><code>##   pre post
