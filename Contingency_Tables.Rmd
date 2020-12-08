@@ -1,0 +1,88 @@
+---
+title: "Contingency Tables"
+author: "Nicholas Jacob"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+```
+
+# Goodness of Fit
+
+Using the Olympic data I will apply the methods of the $\chi^2$ distribution.  Let's find a nice contingency table to look at.
+
+```{r}
+table(data$Medal)
+```
+
+Okay so let's ask if there is any difference in the number of medals of each type being awarded.  Of course we assume that the number of medals should be equal.  (I actually know this may not be the case, for example in boxing two bronze medals are always awarded)  Here is my null and alternative hypothesis:
+$$
+H_0: \text{The number of medals awarded are equal}\\
+H_A: \text{The number of medals awarded are not all equal}.
+$$
+I could have also expressed this in terms of observed and expected.  Something along the lines that the number of expected is equal to the number of observed.
+
+```{r}
+test = chisq.test(table(data$Medal), p = c(1,1,1)/3)
+test
+```
+
+While I had evidence to suggest these numbers might be different, the statistics did not bear that out.  I will fail to reject my null hypothesis here.
+
+The expected values for the number of medals follows
+```{r}
+test$expected
+```
+Here is my bar chart
+
+```{r}
+barplot(table(data$Medal))
+```
+
+Not a terribly interesting plot.  Maybe now I see why I failed to reject that these had any differences!
+
+# Test for Independence
+
+Let's expand on this and ask a little different question, are the number of medals awarded dependent on the sport you play? 
+
+
+```{r}
+table(data$Sport,data$Medal)
+```
+
+Here we see my note about boxing come to light, there are twice as many bronze as other medals in this sport.  Most of the rest do not seem as pronounced so perhaps we won't see an effect.  Let's set up the hypothesis test.
+$$
+H_O: \text{The number of medals is independent of sport}\\
+H_A: \text{The number of medals is dependent on the sport}
+$$
+
+Now we test!
+```{r}
+test = chisq.test(table(data$Sport,data$Medal))
+test
+```
+Here we are able to reject our null hypothesis.  We have evidence to suggest that the number of medals is dependent on the sport.  We should note that it is not that there are more medals in a particular sport but that they are not distributed in a uniform way, eg. boxing.
+
+Esitmates to follow
+```{r}
+test$expected
+```
+
+Lastly let's try to visulaize the contingency table.
+
+```{r}
+mosaicplot(table(data$Sport,data$Medal))
+```
+
+I did it but damn that is ugly!  Let me try it with ggplot.
+```{r}
+library(ggmosaic)
+ggplot(data = data)+
+  geom_mosaic( aes(x = product( Sport, Sex),fill = Medal),na.rm = TRUE) +
+  labs(x = "Sex",y = "Sport", title = "Medals Awarded by Sport")
+```
+
+Not convinced that is all that much better but maybe you can recreate it and get something you like.  I added Sex in there too so you could see how many fewer women have been awarded medals.

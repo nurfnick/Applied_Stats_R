@@ -1,0 +1,47 @@
+---
+title: "ANOVA Homework Helper"
+author: "Nicholas Jacob"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+```
+
+# ANOVA
+
+ANOVA is...
+
+
+1. An experiment is conducted to determine whether there is a differnce among the mean increases in growth produced by five strains (A, B, C, D and E) of growth hormones for plants. The experimental material consists of 20 cuttings of a shrub (all of equal weight), with four cuttings randomly assigned to each of the five different strains. The increases in weight for each cutting are given in the table below.
+
+
+|         | A  | B  | C  | D  | E  |
+|---------|----|----|----|----|----|
+| Plant 1 | 19 | 28 | 25 | 13 | 6  |
+| Plant 2 | 8  | 27 | 22 | 12 | 7  |
+| Plant 3 | 14 | 20 | 24 | 13 | 15 |
+| Plant 4 | 11 | 17 | 22 | 16 | 8  |
+
+Let's add this into R.
+```{r cars}
+data = data.frame("A" = c(19,8,14,11), "B" = c(28,27,20,17), "C" = c(25,22,24,22), "D" = c(13,12,13,16),"E" = c(6,7,15,8), row.names = 1:4)
+data
+```
+
+
+```{r}
+aov(1~A,data)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
