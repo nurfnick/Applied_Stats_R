@@ -8,14 +8,21 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
+library(ggplot2)
 ```
 
 # ANOVA
 
-ANOVA is...
+ANOVA can be broken into two ideas.  One-way and two-way.
 
+One-way ANOVA will examine the means of a quantitative variable by examining the variance among the groups.  We should be comparing more than two groups (for two groups do the hypothesis test of module 0).  We could do this by hand but no body does so I am not going to bother either.  The null hypothesis for this will always be that all means are equal while the alternative is that there are at least two that are not equal.  Be careful with this as some treatments may still have equal means but not all are equal.
+Assumptions for the test include normality, sample independence, and the tricky one equal variances between different groups.  We have seen normality (qq-plots?) The equality of variances will be checked by using the residual vs plotted graph and again asking do we fall on the line.
 
-1. An experiment is conducted to determine whether there is a differnce among the mean increases in growth produced by five strains (A, B, C, D and E) of growth hormones for plants. The experimental material consists of 20 cuttings of a shrub (all of equal weight), with four cuttings randomly assigned to each of the five different strains. The increases in weight for each cutting are given in the table below.
+Two-way ANOVA is going to look at two categorical variables and ask if there is an effect with these categories on the dependent variable.  You will have to look not only at the contribution but the interaction between those categorical variables.  Conditions in two-way are similar to the one-way except that we also ask that the number in each category is equal.  
+
+## One Way
+
+1. An experiment is conducted to determine whether there is a difference among the mean increases in growth produced by five strains (A, B, C, D and E) of growth hormones for plants. The experimental material consists of 20 cuttings of a shrub (all of equal weight), with four cuttings randomly assigned to each of the five different strains. The increases in weight for each cutting are given in the table below.
 
 
 |         | A  | B  | C  | D  | E  |
@@ -26,22 +33,81 @@ ANOVA is...
 | Plant 4 | 11 | 17 | 22 | 16 | 8  |
 
 Let's add this into R.
-```{r cars}
-data = data.frame("A" = c(19,8,14,11), "B" = c(28,27,20,17), "C" = c(25,22,24,22), "D" = c(13,12,13,16),"E" = c(6,7,15,8), row.names = 1:4)
+```{r}
+data = data.frame("A" = c(19,8,14,11), "B" = c(28,27,20,17), "C" = c(25,22,24,22), "D" = c(13,12,13,16),"E" = c(6,7,15,8),"Plant"=1:4)
+data
+```
+I need to make this into tidy data.  It took me a while to find the correct code but I have done it here.  By the way I don't think I needed to include the plant number but I have included it anyway.
+
+```{r}
+data <-
+  data %>% 
+  pivot_longer(c('A','B','C','D','E'), names_to = "Strain", values_to = "Weight")
+
 data
 ```
 
+To apply the **ANOVA** test in R you actually must do two calls.  The first call **aov** asks you to create a function.  Essentially you are asking is there a difference in the weight because of the strain you picked.  This was why I had to get the data tidy!  Once you run the fit, you run a test on that fit with **anova** of the fit.
+```{r}
+fm = aov(Weight ~ Strain, data)
+summary(fm)
+```
+
+The **Strain** here could also be called the Treatment and the **Residuals** could be called the Error.
+
+Let's include a plot to see what is going on here.
+```{r}
+ggplot(data , aes(x = Strain, y = Weight)) +
+  geom_boxplot()
+
+```
+
+We can see it is very clear that these will have a different means.  **B** and **C** are clearly have heavier averages while **A**, **D**, and **E** are lighter. 
+
+Let's check the assumptions of ANOVA are fulfilled.    
 
 ```{r}
-aov(1~A,data)
+plot(fm, 1:2)
 ```
 
-## Including Plots
+In the first graph you are looking to see if there is any relationship.  If there is you will not meet the criteria of homogeneity of variance.  Here we do not observe any relationship.  
 
-You can also embed plots, for example:
+In the second graph you in fact want a relationship!  You would like for all the points to fall on that line.  Here they do not clearly fall on the line but it is close enough to continue with our results.  We will discuss ways to check for this in the next module!
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+If we needed to find a critical **F** value, we would need to know two degrees of freedom and the p value we are using.  Looking at the 95% critical value, we use the degrees of freedom from the numerator (or Treatment) and the degrees of freedom from the denominator (or Error).  You stick a **q** in front of **f** to make it give you critical values just like with **t** or **z**.
+```{r}
+qf(.95,4,15)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Two Way
+
+The homework only has the output from a two way ANOVA only after it has been run through software.  So I don't have an exact homework question to cover but I'll still preform one on a built in dataset.  Everybody loves diamonds right?
+```{r}
+summary(diamonds)
+```
+
+We want to ask is the mean price different for diamonds of different cut and color?  .
+```{r}
+table(diamonds$cut,diamonds$color)
+```
+This also violates one of the requirements of the test.  We are supposed to have the same number of entries in each category and I do not.  I continue anyway.  Let's visualize!
+
+```{r}
+ggplot(diamonds, aes(x = cut, y =price, color = color))+
+  geom_boxplot()
+```
+
+Time to run the ANOVA
+```{r}
+twoWayAnova <- aov(price ~ cut*color, data = diamonds)
+summary(twoWayAnova)
+```
+
+So here we examined if **cut**, **color** and the interaction between the two will have an effect on the price.  Since all are significant they do.
+
+Let's check the requirements are met
+```{r}
+plot(twoWayAnova, 1:2)
+```
+
+Both of these graphs are actually problematic. The QQ-Plot is showing that the data is clearly not normal.  What is normal about diamonds anyway?  The first plot is clearly showing a trend as well.  We expect the red line to stay near the dotted line and that is not the case.  These give us a hint that I should not have used this test!  We'll explore what to do in this case during the 5th and final module.
