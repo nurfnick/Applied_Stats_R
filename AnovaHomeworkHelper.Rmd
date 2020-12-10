@@ -79,6 +79,17 @@ If we needed to find a critical **F** value, we would need to know two degrees o
 qf(.95,4,15)
 ```
 
+
+I want to recreate one more visualization to really express the differences in these means.
+```{r}
+y1 <- mean(data$Weight)
+ggplot(data = data, aes(x = Strain, y = Weight)) +
+  geom_point() + 
+  stat_summary(fun.data = 'mean_se',color = "red") +
+  geom_hline(yintercept = y1, color ="blue", linetype = "dashed") 
+```
+I had seen this graph some where and decided to recreate it here.  Totally unnecessary but creates another visualization of really what the ANOVA test is looking at.
+
 ## Two Way
 
 The homework only has the output from a two way ANOVA only after it has been run through software.  So I don't have an exact homework question to cover but I'll still preform one on a built in dataset.  Everybody loves diamonds right?
