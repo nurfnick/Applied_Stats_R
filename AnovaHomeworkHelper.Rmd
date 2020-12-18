@@ -15,8 +15,8 @@ library(ggplot2)
 
 ANOVA can be broken into two ideas.  One-way and two-way.
 
-One-way ANOVA will examine the means of a quantitative variable by examining the variance among the groups.  We should be comparing more than two groups (for two groups do the hypothesis test of module 0).  We could do this by hand but no body does so I am not going to bother either.  The null hypothesis for this will always be that all means are equal while the alternative is that there are at least two that are not equal.  Be careful with this as some treatments may still have equal means but not all are equal.
-Assumptions for the test include normality, sample independence, and the tricky one equal variances between different groups.  We have seen normality (qq-plots?) The equality of variances will be checked by using the residual vs plotted graph and again asking do we fall on the line.
+One-way ANOVA will examine the means of a quantitative variable by examining the variance among the groups.  We should be comparing more than two groups (for two groups do the hypothesis test of module 0).  We could do this by hand but nobody does so I am not going to bother either.  The null hypothesis for this will always be that all means are equal while the alternative is that there are at least two that are not equal.  Be careful with this as some treatments may still have equal means but not all are equal.
+Assumptions for the test include normality, sample independence, and the tricky one equal variances between different groups.  We have seen normality (qq-plots) The equality of variances will be checked by using the residual vs plotted graph and again asking do we fall on the line.
 
 Two-way ANOVA is going to look at two categorical variables and ask if there is an effect with these categories on the dependent variable.  You will have to look not only at the contribution but the interaction between those categorical variables.  Conditions in two-way are similar to the one-way except that we also ask that the number in each category is equal.  
 
@@ -88,6 +88,7 @@ ggplot(data = data, aes(x = Strain, y = Weight)) +
   stat_summary(fun.data = 'mean_se',color = "red") +
   geom_hline(yintercept = y1, color ="blue", linetype = "dashed") 
 ```
+
 I had seen this graph some where and decided to recreate it here.  Totally unnecessary but creates another visualization of really what the ANOVA test is looking at.
 
 ## Two Way
