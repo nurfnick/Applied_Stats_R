@@ -12,7 +12,7 @@ set.seed(42)
 ```
 You may use this document as a starting point for this assignment.  Your submission should be written in R and include all points addressed below.
 
-# Wilcoxson Ranked Sign
+# Wilcoxson Ranked Sign Test
 
 To keep this assignment simple, we are going to use the built in dataset **ChickWeight** that is included with R.  
 ```{r ChickWeight}
