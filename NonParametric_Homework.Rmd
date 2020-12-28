@@ -6,23 +6,25 @@ output: html_document
 ---
 
 ```{r setup, include = F}
-library(boot)
-library(caret)
-set.seed(42)
+
 ```
 You may use this document as a starting point for this assignment.  Your submission should be written in R and include all points addressed below.
 
-# Wilcoxson Ranked Sign Test
 
 To keep this assignment simple, we are going to use the built in dataset **ChickWeight** that is included with R.  
 ```{r ChickWeight}
 head(ChickWeight)
 ```
+
+
+# Wilcoxson Ranked Sign Test
+
+
 1. Chickens that do not put on weight early in life are most likely to die.  Examine the hypothesis that diet 1 will not have early weight gain of the chicks. Use a non-parametric method for matched pairs.
 
-<!-- I have done some of the necessary data wrangling for you. -->
+<!-- The code below does most of the necessary data wrangling for you.  I've commented this out because I wanted you to try this step but if you cannot figure it out it is here... -->
 <!-- ```{r} -->
-<!-- df <- ChickWeight[which(ChickWeight$Time %in% c(0,2) & ChickWeight$Diet %in% c(1)),] -->
+<!-- df <- ChickWeight[which(ChickWeight$Time %in% c(0,2) & ChickWeight$Diet %in% c(1,2)),] -->
 <!-- df <- reshape(df, idvar = c("Chick", "Diet"), timevar = "Time", direction = "wide") -->
 <!-- df["Difference"] = df$weight.2 - df$weight.0 -->
 <!-- df -->
@@ -30,13 +32,18 @@ head(ChickWeight)
 <!-- The dataframe **df** contains all the necessary info in **Difference**.  You just need to run the test. -->
 
 
-# Cross Validation
+# Kruskal-Wallis
 
-The multiple linear regression using carat, depth, and table to predict price is done below.  
+We are going to repeat the test above but examine if there is a difference in the **diets**.
 
-```{r }
-fit <- lm(price ~ carat +depth + table, data = diamonds)
-summary(fit)
-```
-2. Repeat this linear model using 10 fold cross validation.  Explain in words what you are doing.  Examine one of the folds carefully explaining the steps involved.  Examine the $R^2$ value and residual mean standard error.  Compare the values you get to the original model.
+
+2. Examine the claim that there is a difference in early weight gain between the different diets.  Use a non-parametetric method for comparing multiple medians.  Be sure to include an appropriate visualization.
+
+<!-- The code below does the data wrangling for you, but you should try it before uncommenting! -->
+<!-- ```{r DrJacobsWrangle} -->
+<!-- df2 <- ChickWeight[which(ChickWeight$Time %in% c(0,2)),] -->
+<!-- df2 <- reshape(df2, idvar =c("Chick","Diet"),timevar = "Time",direction = "wide") -->
+<!-- df2["Difference"] = df2$weight.2 - df2$weight.0 -->
+<!-- df2 -->
+<!-- ``` -->
 

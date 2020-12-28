@@ -1,0 +1,107 @@
+---
+title: "Non-Parametric Homework Helper"
+author: "Nicholas Jacob"
+date: "12/22/2020"
+output: html_document
+---
+
+
+```{r setup, include = F}
+library(ggplot2)
+```
+I am going to try to help with doing the homework and project by giving you some examples in coding these non-parametric tests.
+
+
+To keep this assignment simple, we are going to use the built in dataset **diamonds** that is included with ggplot2.  
+```{r ChickWeight}
+head(diamonds)
+```
+# Wilcoxson Ranked Sum Test
+
+```{r}
+table(diamonds$color)
+```
+
+I am going to look at color of the diamonds.  Let's ask if the median price of a **D** colored diamond is equal to the **J** colored diamond.  First I'll trim down the data frame to just contain those diamonds and then compare the prices.
+```{r}
+df <- diamonds[which(diamonds$color %in% c("D","J")),]
+summary(df)
+```
+```{r}
+
+wilcox.test(price~color, data = df)
+```
+```{r}
+by(diamonds$price,diamonds$color,median)
+```
+I did not know the **by** command but it gives me a nice way to build these tables.  It is clear here that these are very different!  Might be more interesting to compare a price that is closer like **F** and **G**
+```{r}
+df2 <- diamonds[which(diamonds$color %in% c("F","G")),]
+wilcox.test(price ~ color, data = df2)
+```
+Here I would fail to reject the null hypothesis (which is what I was shooting for)  There is not evidence to suggest that the median price is different.
+
+
+
+
+# Wilcoxson Ranked Sign Test
+
+I need matched data for this test.  This is the tricky thing!  I think I am going to look at the iris dataset.  It is one of the world famous.
+
+```{r}
+head(iris)
+```
+I am going to look at the difference of the Sepal Length and Widths and see if the species make a difference
+```{r}
+df3 <- iris[which(iris$Species %in% c("setosa","versicolor")),]
+df3["Sepal.Difference"] = df3$Sepal.Length - df3$Sepal.Width
+
+```
+With that all cleaned up we run the test.
+```{r}
+wilcox.test(Sepal.Difference ~ Species, data = df3, paired = TRUE)
+
+```
+So we are able to reject the null hypothesis that the medians are the same.  We will look at the medians just because it is nice to see why we rejected the null hypothesis.  
+```{r}
+by(df3$Sepal.Difference,df3$Species,median)
+```
+Yes, it is clear that we would reject that those are equal.
+
+```{r}
+
+boxplot(df3$Sepal.Difference~df3$Species)
+```
+
+# Kruskal-Wallis
+
+I'll repeat the Kruskal-Wallis test on the **iris** dataset.  I'll just look at the Sepal Length vs the species.
+
+```{r}
+boxplot(iris$Sepal.Length ~ iris$Species)
+```
+```{r}
+by(iris$Sepal.Length,iris$Species,median)
+```
+```{r}
+kruskal.test(Sepal.Length ~ Species , data = iris)
+```
+Of course we reject the null hypothesis, these flowers are very different.
+
+# Spearman
+
+To finish we examine the correlations using the Spearman rank test.  My guess is that the Sepal Lengths and widths should be related.
+```{r}
+cor.test(iris$Sepal.Length, iris$Sepal.Width, method = "spearman")
+```
+
+With this p value we will still reject the null hypothesis.
+
+```{r}
+plot(iris$Sepal.Length, iris$Sepal.Width)
+abline(lm(Sepal.Width ~ Sepal.Length, data = iris),col = "Blue")
+```
+
+We see that this relationship is not strong but we can see that as the sepal gets longer it also gets narrower.
+
+Okay hope this helps you get your homeworks done!
