@@ -151,6 +151,7 @@ I should have a histogram over the age too.
 ggplot(data = data, aes(x= Age)) +
   geom_histogram(binwidth = 1) #I set the binwidth because of an error message
 ```
+
 Since I am interested in how Sex plays, I will include that in my histogram too.
 
 ```{r}
@@ -166,23 +167,24 @@ ggplot(data,aes(sample = Age)) +
 ```
 The QQ Plot gives us an indication of whether the data is normal.  Normal data will fall on the line, this is clearly not normally distributed!
 
-I saw this visualization today and couldn't resist including it!
-```{r, pairsVis}
+<!-- I saw this visualization today and couldn't resist including it! -->
+<!-- ```{r, pairsVis} -->
 
-ggpairs(data, columns = c("Sex","Age", "Height", "Weight", "Year"), aes(color = Sex),progress = FALSE)
-```
-Sorry, I love crazy visualizations and this pairs ideas is one of them!  You can clearly tell when women start participating in olympics and when they didn't hold them!
+<!-- ggpairs(data, columns = c("Sex","Age", "Height", "Weight", "Year"), aes(color = Sex),progress = FALSE) -->
+<!-- ``` -->
+<!-- Sorry, I love crazy visualizations and this pairs ideas is one of them!  You can clearly tell when women start participating in olympics and when they didn't hold them! -->
 
-%Here is the base R version of the above.  It only works on numeric values
-%```{r}
-%pairs(select_if(data,is.numeric))
-%```
+<!-- %Here is the base R version of the above.  It only works on numeric values -->
+<!-- %```{r} -->
+<!-- %pairs(select_if(data,is.numeric)) -->
+<!-- %``` -->
 
 Okay last exploration I promise!
 ```{r}
 ggplot(data, aes(x = Year, color = Sex)) +
   geom_histogram()
 ```
+
 Anybody know why there wasn't olympics held in to two dips?  The one really tall bar was when they held the summer and winter olympics in the same year.
 
 Lastly I thought maybe I should show the normal distribution and how to get R to do it.
@@ -195,11 +197,13 @@ I think you can do a test too.  Proportions are normal.  I'll check out gender!
 ```{r}
 usathletes = data[which(data$Team=='United States'),]
 frathletes = data[which(data$Team=='France'),]
-frx = sum(frathletes$Sex=="M",na.rm = TRUE)
 
+frx = sum(frathletes$Sex=="M",na.rm = TRUE)
 usx = sum(usathletes$Sex=="M",na.rm = TRUE)
+
 frn = length(frathletes$Sex)
 usn = length(usathletes$Sex)
+
 prop.test(c(frx,usx),c(frn,usn))
 ```
 

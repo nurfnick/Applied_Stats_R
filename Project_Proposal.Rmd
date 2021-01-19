@@ -1,0 +1,34 @@
+---
+title: "Project Proposal"
+author: "Nicholas Jacob"
+date: "1/19/2021"
+output: html_document
+---
+
+
+```{r setup}
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+
+```
+
+# Olympic Medals Data Exploration
+
+For this first assignment, I want you to get into R and load your data!
+
+
+I discovered this data set at <https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results>.  In order to create my data file, I clicked the icon to upload to Google sheets, published it to the web as a csv and copied a link.  Some data will be possible to upload to github but if the file is large github will not do it.  You need the data to be in a raw form, with csv.
+
+Once you have your data loaded up into R, lets do two things with it!  First I am going to show a snippet of the data with the `head` command.  Create an R environment using three tick marks (by the tilde) and an `{r}` and close it out with three more tick marks.  Anything inside can be run as R code (anything outside is just text explaining your project) 
+
+```{r}
+head(data)
+```
+
+So we see a few athletes from different times and events.  Notice that Aaftink is repeated, might worry about that later.  Lastly I'll run some real quick statistics.
+
+
+```{r}
+summary(data)
+```
+
+This went through all the columns and did summary statistics on the quantitative variables.  Okay that is all I want for the first assignment!
