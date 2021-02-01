@@ -125,3 +125,41 @@ My 95% confidence interval will be
 zcrit = qnorm(1-.05/2)
 c((xbar1-xbar2)-zcrit*se,(xbar1-xbar2)+zcrit*se)
 ```
+
+## WeBWorK 37
+
+ Randomly selected 18 student cars have ages with a mean of 7.1 years and a standard deviation of 3.4 years, while randomly selected 17 faculty cars have ages with a mean of 5.2 years and a standard deviation of 3.7 years.  Use a 0.05 significance level to test the claim that student cars are older than faculty cars.
+ 
+Here we are comparing two means but we do not know the population standard deviations only the sample so this is a $t$.  We will use a test statistic of
+$$
+t = \frac{(\overline x_1-\overline x_2)-0}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}
+$$
+
+We also need the degrees of freedom.  There are several ways to do this.  I am going to use the simplest, 
+$$
+df = min(n_1-1,n_2-1)
+$$
+```{r}
+xbar1 = 7.1
+xbar2 = 5.2
+sigma1 = 3.4
+sigma2 = 3.7
+n1 = 18
+n2 = 17
+df = min(n1-1,n2-1)
+
+se = sqrt(sigma1**2/n1+sigma2**2/n2)
+t = (xbar1-xbar2)/se
+t
+```
+This test is one-sided
+
+```{r}
+tcrit = qt(1-.05,df)
+tcrit
+```
+But when you compute the confidence interval you need to do it as two sided
+```{r}
+tcrit = qt(1-.05/2,df)
+c((xbar1-xbar2)-tcrit*se,(xbar1-xbar2)+tcrit*se)
+```
