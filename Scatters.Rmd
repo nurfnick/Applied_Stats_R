@@ -40,6 +40,7 @@ ggplot(data, aes(sample = Weight)) +
   stat_qq() +
   stat_qq_line()
 ```
+
 QQ-Plots are all about looking at the normality of the datasets.  Height fits very well on the line but Weight does not!  I wonder if it will do better by restricting the genders.
 ```{r}
 ggplot(data[ which(data$Sex == 'F'),],aes(sample = Weight)) +
