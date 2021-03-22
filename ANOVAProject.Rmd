@@ -1,0 +1,54 @@
+---
+title: "ANOVA Project"
+author: "Nicholas Jacob"
+date: "12/10/2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+library(ggplot2)
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+```
+
+## Olympics
+
+Keeping with my project, I am now going to explore the olympic dataset and preform an few ANOVA computations.  Let's ask if the sport they play affects their height.  Really I am asking is the mean height of all athletes across sports the same.
+
+$$
+H_0: \mu_1 = \mu_2=\cdots=\mu_n\\
+H_A: \mu_i\neq\mu_j \text{ for some }i\text{ and }j
+$$
+
+```{r}
+a <- aov(Height ~ Sport , data = data)
+summary(a)
+```
+Clearly there is some difference, so we will reject the null hypothesis.  Let's explore the assumptions of the test.
+```{r}
+plot(a,1)
+```
+The red line sits right in the middle here so eye balling it, it looks like the assumption of equal variances is okay.
+```{r}
+plot(a,2)
+```
+
+The QQ-Plot also looks acceptable suggesting the data is normal.  So I feel confident rejecting the null hypothesis and saying that there is evidence that the mean height of athletes in different sports do have a different.
+
+```{r}
+y1 <-  mean(data$Height, na.rm = TRUE)
+ggplot(data = data, aes(x = Sport, y = Height))+
+  geom_jitter(color = 'grey') +
+  stat_summary(fun.data = 'mean_se', color = "red") +
+  geom_hline(yintercept = y1,  color = "blue",linetype = "dashed")
+```
+
+# Two Way ANOVA
+
+Next I wonder if gender plays a significant role here too?  I'll add it to my ANOVA and explore.  There will be three hypotheses here.
+```{r}
+a2 <- aov(Weight ~ Sport*Sex, data)
+summary(a2)
+```
+
+

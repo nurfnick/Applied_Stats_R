@@ -41,6 +41,24 @@ plot(results)
 ```{r}
 boot.ci(results, type="perc")
 ```
+Let's compute a $p$ value for the following hypothesis test
+$$
+H_0: \mu = 25.5\\
+H_A: \mu > 25.5
+$$
+The $t$-Student $p$-value will be computed with the following code.
+
+```{r}
+pt((25.5 - results$t0)/sd(results$t),length(results$t)-1)
+```
+
+We can also compute the percentile $p$ value based on the bootstrap by doing
+
+```{r}
+mean(25.5>results$t)
+```
+Clearly it is a small value here!  The sample size also drives this result to be 0 rather than a reportable value.
+
 # Sex and Age
 Let's repeat this but first divide the data based on Sex.
 ```{r}
