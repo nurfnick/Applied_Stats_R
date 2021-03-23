@@ -1,0 +1,104 @@
+---
+title: "Non-Parametric"
+author: "Nicholas Jacob"
+date: "03/23/2021"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+library(ggplot2)
+library(tidyverse)
+data = read.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSDpJqmVSks0f4vLzzcmcTfPJ8TSu4ziCNpTFy_fIY6LibZksRXzCfJYXj9qZd4NiofejxoYSkmLMwu/pub?output=csv')
+
+```
+# Olympics
+
+I want to finish the olympic project with some analysis using the non-parametric methods.  I am going to try to repeat many of the analysis I have already made (except for Matched Pairs).
+
+## Mann-Whitney U test or Wilcoxon Rank Sum Test
+
+I will compare the median (NOT mean!) ages between the genders.  My hypotheses are
+$$
+H_0: m_M = m_W\\
+H_a: m_M \neq m_W
+$$
+
+Visualizing the data first:
+```{r BoxSexAge}
+ggplot(data = data,aes(x= Age, y =Sex))+
+  geom_boxplot()
+```
+```{r wilcoxTest}
+wilcox.test(Age~Sex, data = data)
+```
+So the median ages are also different!  I reject the null hypothesis, there is evidence to suggest that the median age of male and female olympians is different.
+
+## Wilcoxson Signed-Ranks Test for Matched Pairs
+
+I doubt many of you will be able to do this test with the data you have but figured I should give it a go!  I am going to examine the number of medals awarded each year and ask are men being awarded more medals than women.  First I'll need to create this data.
+```{r combiningMedalsByYearsAndGender}
+data %>%
+  group_by(Year,Sex)%>%
+  filter(!is.na(Medal))%>%
+  count(Medal %in% c("Bronze","Silver","Gold"), name = "Medals")%>%
+  spread(Sex,Medals)%>%
+  mutate(diff = M-F)
+```
+This took me an hour to create, so a little tricky!  If you look at my diff column you'll notice there is NEVER a year that women earn more medals than the men.  We will clearly see that the number of medals earned in a year is different by **Sex** but let's do the test anyway.  I should state my hypothesis!  The median difference in the number of medals earned each year between the sexes is 0.  So let $m$ be the median difference, then
+$$
+H_0: m=0\\
+H_a: m \neq 0
+$$
+
+```{r}
+data %>%
+  group_by(Year,Sex)%>%
+  filter(!is.na(Medal))%>%
+  count(Medal %in% c("Bronze","Silver","Gold"), name = "Medals")%>%
+  spread(Sex,Medals)%>%
+  mutate(diff = M-F)%>%
+  {wilcox.test(.$diff)}
+
+```
+So the new line there passes the **diff** column into the wilcox test.  This was a pain but I wanted to practice with the wrangling!  We reject the null hypothesis, we have evidence to suggest that the median difference in number of medals awarded is not zero.
+
+## Kruskal-Wallis Test
+
+To do the Kruskal-Wallis Test, we'll want to do something more like ANOVA where we have multiple levels.  We'll be asking are the medians over these multiple treatments the same.  Let's ask the same question as before, does the sport you play effect your height?
+
+
+```{r kruskal}
+a <- kruskal.test(Height ~ Sport , data = data)
+a
+```
+Our results are very similar as when we ran the ANOVA, **Sport** does have effect on the median of the height.  We reject the null hypothesis that all medians are the same and have evidence to suggest that at least two are different.  Let's visualize!
+```{r kuskal vis}
+ggplot(data = data, aes(Height,Sport)) +
+  geom_boxplot()
+```
+
+Not exactly the easiest visualization to read but you can see that basketball players are tall and gymnasts are short.
+
+##  Spearman Rank Correlation
+
+For the last of the non-parametric, we'll look at correlation!  Let's do height and weight again!
+```{r scatter}
+ggplot(data = data, aes(Weight, Height, color = Sex))+
+  geom_point()
+```
+
+I through **Sex** in because I could in the visualization...
+
+The hypothesis will be about $\rho_S$ the Spearman Rank correlation.
+$$
+H_0: \rho_S = 0\\
+H_a: \rho_S \neq 0
+$$
+
+```{r}
+cor.test(data$Height, data$Weight, method = "spearman")
+```
+
+We can reject our null hypothesis that the correlation is zero, thus we have evidence to suggest that the correlation is not zero.  Remember here to that we will pick up non-linear correlation so it may be that the data fits a nice curve.
+
+Okay that is it!  My report is done!  Nice work this semester!
