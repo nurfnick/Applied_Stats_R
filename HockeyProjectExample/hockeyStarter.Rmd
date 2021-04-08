@@ -1,0 +1,85 @@
+---
+title: "2021 Hockey"
+author: "Nicholas Jacob"
+date: "1/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+data = read.csv('https://raw.githubusercontent.com/nurfnick/RTest/main/hockey.csv')
+```
+
+## Hockey Rules
+
+I am testing
+
+```{r}
+head(data)
+```
+
+## Creating Project Part 0
+
+1. Exploratory Data Analysis of Quantitative
+2. Exploratory of One Categorical
+3. Exploratory of Two Categorical
+4. Hypothesis Test Comparing Mean to a Fixed Value
+5. Hypothesis Test Comparing Two Means
+
+```{r histogram}
+hist(data$PTS)
+```
+
+```{r}
+summary(data$PTS)
+```
+
+```{r}
+sd(data$PTS, na.rm = TRUE)
+```
+
+```{r}
+qqnorm(data$PTS)
+```
+
+```{r}
+boxplot(data$PTS)
+```
+
+## Categorical Variables
+
+```{r}
+table(data$X)/length(data$X)
+```
+
+```{r}
+table(data$X,data$GP)
+```
+
+## Hypothesis Test
+
+$$
+H_0:  \mu = 3\\
+H_A:  \mu\neq 3
+$$
+
+```{r}
+t.test(data$GP, mu = 3.25)
+```
+```{r}
+lesspp = data[which(data$PPO <= data$PPOA),]
+morepp = data[which(data$PPO > data$PPOA),]
+```
+
+```{r}
+t.test(lesspp$W,morepp$W)
+```
+
+
+
+
+```{r}
+t.test(data$GP, mu = 4)
+```
+
+The next part of the project can be found here <https://rpubs.com/nurfnick/720194>
