@@ -61,11 +61,8 @@ print(model)
 summary(model)
 ```
 
-```{r}
-confint(model)
-```
 
-Okay I have done it!  I doubt I am going to make a very acuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependent on a few values for the fit).
+Okay I have done it!  I doubt I am going to make a very accuarate prediction using this model but I will not that it is clear this model is not overfit.  I am confident that the model is not overfit because the cross validation gave very similar metrics to the original model.  There are no hard and fast rules here but if you see large swings, you have some evidence that the model is overfit (too dependent on a few values for the fit).
 
 Let's examine the plots.
 ```{r}

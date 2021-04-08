@@ -32,3 +32,15 @@ summary(data)
 ```
 
 This went through all the columns and did summary statistics on the quantitative variables.  Okay that is all I want for the first assignment!
+
+All other parts of the project can be found on the following series of links.
+
+0. [This Document](https://rpubs.com/nurfnick/715221)
+1. [Exploratory Data Analysis](https://rpubs.com/nurfnick/751605)
+2. [Hypothesis Testing](https://rpubs.com/nurfnick/715229)
+3. [Regression](https://rpubs.com/nurfnick/720617)
+4. [Bootstrapping](https://rpubs.com/nurfnick/696714)
+5. [Cross Validation](https://rpubs.com/nurfnick/751613)
+6. [Contingency Tables and Goodness of Fit](https://rpubs.com/nurfnick/730813)
+7. [ANOVA](https://rpubs.com/nurfnick/733672)
+8. [NonParametric Methods](https://rpubs.com/nurfnick/743956)
