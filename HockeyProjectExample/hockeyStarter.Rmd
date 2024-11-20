@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-data = read.csv('https://raw.githubusercontent.com/nurfnick/RTest/main/hockey.csv')
+data = read.csv('hockey.csv')
 ```
 
 ## Hockey Rules
@@ -66,9 +66,10 @@ $$
 ```{r}
 t.test(data$GP, mu = 3.25)
 ```
+You get plain text 
 ```{r}
-lesspp = data[which(data$PPO <= data$PPOA),]
-morepp = data[which(data$PPO > data$PPOA),]
+lesspp <- data[which(data$PPO <= data$PPOA),]
+morepp <- data[which(data$PPO > data$PPOA),]
 ```
 
 ```{r}
