@@ -1,0 +1,290 @@
+---
+title: "NYC Marathon"
+author: "Nicholas Jacob"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+library(lubridate)
+```
+
+## NYC Marathon 2024
+
+I really wanted to construct the project one more time during the current semester for MATH 3583 Applied Stats.  I figured I could express some new coding techniques I have learned over the last four years and hopefully get a little better at R.  
+
+For this project, I am using the NYC Marathon results from 2024.  Here are the first six finishers.  Be careful about printing too much of the data at any one time as it makes your report unreadable.  I'll include some of my code but often, I'll just make the outputs available when appropriate.
+
+```{r}
+df = read.csv("NYCMarathon2024.csv")
+head(df)
+```
+I first want to give a little check on the quality of the data.  I do this with a large block of code that I have hidden away but show the results only.
+
+
+
+```{r, include = FALSE}
+dfNumeric <- df %>% 
+  dplyr::select(where(is.numeric))
+glimpse(dfNumeric)
+
+
+dfFactor <- df %>% 
+  dplyr::select(where(is.character))%>%
+  mutate_all(factor)
+glimpse(dfFactor)
+
+
+```
+
+```{r, include = FALSE}
+Q1<-function(x,na.rm=TRUE) {
+quantile(x,na.rm=na.rm)[2]
+}
+Q3<-function(x,na.rm=TRUE) {
+quantile(x,na.rm=na.rm)[4]
+}
+```
+
+```{r, include = FALSE}
+myNumericSummary <- function(x){
+  c(length(x), n_distinct(x), sum(is.na(x)), mean(x, na.rm=TRUE),
+  min(x,na.rm=TRUE), Q1(x,na.rm=TRUE), median(x,na.rm=TRUE), Q3(x,na.rm=TRUE),
+  max(x,na.rm=TRUE), sd(x,na.rm=TRUE))
+}
+```
+
+```{r, include = FALSE}
+# Summary function
+numericSummary <- dfNumeric %>%
+  summarise_all(myNumericSummary) %>%
+  # Adding descriptive statistics to the numeric summary table
+  cbind(stat = c("n", "unique", "missing", "mean", "min", "Q1", "median", "Q3", "max",
+                 "sd")) %>%
+
+  tidyr::pivot_longer(cols = "runnerId":"racesCount", names_to = "variable", 
+                      values_to = "value") %>%
+  tidyr::pivot_wider(names_from = stat, values_from = value) %>%
+  dplyr::mutate(
+    missing_pct = 100 * missing / n,
+    unique_pct = 100 * unique / n
+  ) %>%
+  # Selecting and ordering columns
+  dplyr::select(variable, n, missing, missing_pct, unique, unique_pct, everything())
+
+# Limiting the number of digits in the table and using scientific notation
+options(digits = 2, scipen = 0)
+```
+
+```{r, include = TRUE, echo = FALSE, fig.pos="H"}
+# Display the Descriptive Summary of Numeric Variables
+numericSummary %>%  
+  kable(digits = 2, format = "latex", booktabs = TRUE, 
+        caption = "Descriptive Summary of Numeric Variables") %>%
+  kable_styling(font_size = 12,latex_options = c("H", "scale_down")) %>%
+  row_spec(0, bold = TRUE) %>% 
+  row_spec(1:nrow(numericSummary), extra_latex_after = "\\addlinespace[0.5em]")
+```
+
+```{r, include = FALSE}
+getmodes <- function(v,type=1) {
+tbl <- table(v)
+m1<-which.max(tbl)
+if (type==1) {
+return (names(m1)) #1st mode
+}
+else if (type==2) {
+return (names(which.max(tbl[-m1]))) #2nd mode
+}
+else if (type==-1) {
+return (names(which.min(tbl))) #least common mode
+}
+else {
+stop("Invalid type selected")
+}}
+getmodesCnt <- function(v,type=1) {
+tbl <- table(v)
+m1<-which.max(tbl)
+if (type==1) {
+return (max(tbl)) #1st mode freq
+}
+else if (type==2) {
+return (max(tbl[-m1])) #2nd mode freq
+}
+else if (type==-1) {
+return (min(tbl)) #least common freq
+}
+else {
+stop("Invalid type selected")
+}}
+```
+
+```{r, include = FALSE}
+# Define categorical summary function
+myCategoricalSummary <- function(x) {
+  c(
+    length(x),
+    sum(is.na(x)),
+    n_distinct(x),
+    getmodes(x,1), getmodesCnt(x,1),
+    getmodes(x,-1), getmodesCnt(x,-1)
+  )
+}
+
+# Apply the categorical summary function to all factors in trainFactor
+factorSummary <- dfFactor %>%
+  summarise_all(myCategoricalSummary)
+
+# Add column titles to the factorSummary table
+factorSummary <- cbind(
+  stat = c("n", "missing", "unique", "mode", "mode_freq","least common","freq"),
+  factorSummary
+)
+
+# Reshape the data and calculate percentages for missing and unique values
+factorSummaryFinal <- factorSummary %>%
+  tidyr::pivot_longer(cols = "firstName":"ageGradeTime", 
+                      names_to = "variable", values_to = "value") %>%
+  tidyr::pivot_wider(names_from = stat, values_from = value) %>%
+  dplyr::mutate(
+    miss_pct = 100 * as.numeric(missing) / as.numeric(n),  # Calculate missing percentage
+    unique_pct = 100 * as.numeric(unique) / as.numeric(n),  
+  ) %>%
+  dplyr::select(variable, n, missing, miss_pct, unique, unique_pct, everything())
+# Set display options for precision and formatting
+options(digits = 3, scipen = 99)
+```
+
+```{r ,include = TRUE, echo = FALSE, fig.pos = "H"}
+# Display the final summary table with kable
+factorSummaryFinal %>% 
+  kable(digits = 2, format = "latex", booktabs = TRUE, 
+        caption = "Descriptive Summary of Categorical Variables") %>%
+  kable_styling(font_size = 7,latex_options = c("H")) %>%
+  row_spec(0, bold = TRUE) %>%  # Make header bold
+  row_spec(1:nrow(factorSummaryFinal), extra_latex_after = "\\addlinespace[0.25em]")
+```
+
+If you go back and look at the code, you'll see that is a lot of work to make this pretty table.  You are welcome to use this code but with so much going on, it is difficult to debug...
+
+There are a couple of issues I am noticing in the current code.  First off, `countryCode` and `iaaf` look very similar but the summary statistics are different so not sure what is going on with that.  Not a huge issue.  The big issue I see is that the `overallTime` is being interpreted as a categorical field.  This will need to be fixed!
+
+## Data Cleaning
+
+I like to do my data cleaning in the programming language I am using.  It will make it so that you don't need to touch or change the data at all and you should be able to recreate what you did right after you load the data.  This way it will work for all other parts of the project.
+
+Let's talk for a moment about my process for solving this problem.  I think I have done this before but I don't remember exactly how to do it.  First I take a guess at what this would be called.  I know it isn't a time but a time difference, so I search google with "r time difference".  At first I get a bit distracted by the first entry but eventually I see the ETH Zurich site.  This one is the R manual.  There I see that there is a data class called `difftime`.  I skim the top parts and go to the example which seems to do what I want.  You see below that it prints the winners time in hours as I had hoped! 
+
+```{r}
+as.difftime(df$overallTime)[1]
+```
+I can also convert that the seconds if I wanted to.  The `[1]` is limiting the printout just to the very first entry.
+```{r}
+as.difftime(df$overallTime, units = "secs")[1]
+```
+
+So I will mutate the time columns so that we can continue our analysis.
+
+```{r}
+df <- df %>% mutate(
+  overallTime = as.difftime(overallTime)
+)
+
+```
+
+Dang it!  That worked for te overall time but not for `pace` nor `ageGradeTime`.  Since I am not sure what `ageGradeTime` is, I'll just not use it in any analysis.  I'll recompute pace by taking the `overallTime` and dividing by the length of the Marathon (26.2 miles) Notice how content knowledge is important to dealing with your data?
+
+```{r}
+df <- df %>% mutate(
+  pace = ms(pace), #using lubridate and convert og pace
+  pace2 = overallTime/26.2 # just divide by length.  Gives pace in hours
+)
+  
+```
+
+Well, I could get the division to work but I couldn't seem to get it in an hour format.  I left it here as called `pace2`.  I did find the tidy version for dealing with dates and times called `lubridate`.  This is a library I had to add to the beginning of my document.  Now, `pace` has minutes and seconds.  
+
+Okay so your data will have some cleaning that is needed.  You'll need to start early!  Cleaning is a pain and you may need some of my help to get it in a good format.  Once the data is clean, you shouldn't need to do that again!
+
+## Exploratory Data Analysis
+While I already did some of the EDA in my data summary table, I should show some easier to understand code for this too.  Here is summary of the times.
+
+```{r}
+summary(as.numeric(df$overallTime))
+```
+I am missing standard deviation, so I add that inline showing that the standard deviation,  `r sd(as.numeric(df$overallTime))`.  Here is used the code `sd` and if there had been na values, I would have added the option `na.rm = TRUE`.
+
+I add the graphical displays using the `ggplot2` package (I am a big fan!)  You can do these in base r but I'll stick to ggplot as it has so many options to make beautiful graphics.
+```{r, warning = FALSE}
+ggplot(data = df, aes(x = as.numeric(overallTime)))+
+  geom_histogram()
+```
+```{r, warning = FALSE}
+ggplot(data = df, aes(x = as.numeric(overallTime)))+
+  geom_boxplot() +
+  labs(x = "Time in hours",
+       title = "Boxplot of runners time in NYC Marathon")+
+  theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
+```
+
+For the categorical variable, we can do some similarly straight forward coding
+```{r}
+table(df$countryCode)[1:10]#this limited me to 10 entries
+      
+```
+12 blanks is a little odd.  I can do this another way that may give you a better look.
+```{r}
+df %>% group_by(countryCode)%>%
+  summarise(count = n()) %>%
+  mutate( freq_pct = count/length(df$runnerId)*100) %>%
+  head()
+```
+For the two-way table, I'll repeat with two methods.  Here is the base method, again restricting so I don't show too much
+```{r}
+table(df$countryCode,df$iaaf)[1:10,1:10]
+```
+As for the tidy version:
+```{r}
+df %>% count(countryCode,iaaf)%>%
+  head()
+```
+This doesn't look like a two-way but it has the same data.  (I couldn't find the method to change it to a table quickly so I am happy as is.)
+
+## Hypothesis Testing
+
+
+You can get pretty crazy with your hypotheses.  I just ask that you explore something of interest based on your content knowledge.  For me, I am interested in playing around with names.  I am going to test if people named Nicholas have a different average time in the race from those named Micheal (our mode).  I'll state this formally as
+$$
+H_0:\quad \mu_{Nicholas} = \mu_{Micheal}
+$$
+$$
+H_a:\quad \mu_{Nicholas} \neq \mu_{Micheal}
+$$
+
+To continue, I'll need to subset my data.  This is actually not too hard but has some quirks.  Using the \$ to get to the variable in the dataset, I ask it be logically equal to what I am looking for.
+```{r}
+head(df$firstName == "Nicholas")
+```
+This gives a bunch of True/False.  To get the data from that, we pass it into the dataframe
+```{r}
+head(df[df$firstName == "Nicholas",]) #163 is still too many to print them all!
+```
+Lastly, I get the data I want by taking the subsetted data and asking for that variable with the \$ sign again.  Now I want the `overallTime`.  I've dropped this into my `t.test` to preform the test.
+```{r}
+
+ttest <-t.test(as.numeric(df[df$firstName == "Nicholas",]$overallTime),
+        as.numeric(df[df$firstName == "Michael",]$overallTime))
+
+ttest
+```
+The results above are printed but we can access the data in other ways too.  We can say that this test gave us a $p$-value of `r ttest$p.value`.
+
+So we see these are different but we should look at some visualizations to confirm.
+```{r, echo = FALSE, warning=FALSE}
+df %>% filter(firstName %in% c("Nicholas", "Michael")) %>%
+  ggplot(aes(x = firstName, y = as.numeric(overallTime))) +
+  geom_boxplot()
+```

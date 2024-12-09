@@ -14,7 +14,7 @@ You may use this document as a starting point for this assignment.  Your submiss
 
 # Bootstrap
 
-To keep this asssignment simple, we are going to use the built in dataset **diamonds** that is included with R.  
+To keep this assignment simple, we are going to use the built in dataset **diamonds** that is included with R.  
 ```{r diamonds}
 summary(diamonds)
 ```
