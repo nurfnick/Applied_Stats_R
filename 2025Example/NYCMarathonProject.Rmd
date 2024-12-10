@@ -229,6 +229,13 @@ ggplot(data = df, aes(x = as.numeric(overallTime)))+
        title = "Boxplot of runners time in NYC Marathon")+
   theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
 ```
+We do see the outliers on the boxplot.  These are categorized as values that are more (or less) than $1.5IQR$ beyond the $Q_3$ (or $Q_1$ for below).  Let's do a proper statistical test looking for outliers.
+```{r}
+grubbs.test(as.numeric(df$overallTime))
+```
+
+So the highest value is clearly an outlier.  Of course the issue here is that this test only looks at that one outlier.  
+
 
 For the categorical variable, we can do some similarly straight forward coding
 ```{r}
