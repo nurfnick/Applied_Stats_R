@@ -2,7 +2,7 @@
 title: "NYC Marathon"
 author: "Nicholas Jacob"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
 library(lubridate)
+library(outliers)
 ```
 
 ## NYC Marathon 2024
@@ -295,3 +296,38 @@ df %>% filter(firstName %in% c("Nicholas", "Michael")) %>%
   ggplot(aes(x = firstName, y = as.numeric(overallTime))) +
   geom_boxplot()
 ```
+
+## Goodness of Fit
+
+### Test for Idependence
+
+We expect all people from USA also have a country code for the US.  Let's test this.
+
+```{r}
+test <- chisq.test(table(df[df$iaaf == "USA","countryCode"]))
+test
+```
+So this was the expected table.  What did the actual table look like?
+```{r}
+test$expected
+```
+
+```{r}
+table(df[df$iaaf == "USA","countryCode"])
+```
+Yes, most were from the US.  
+
+### Contingency Table
+
+Now I need a two way table.  I don't print it because it is annoyingly large.
+
+```{r}
+
+chisq.test(table(df[df$iaaf == "USA","countryCode"],df[df$iaaf == "USA","stateProvince"]))
+```
+
+```{r}
+mosaicplot(table(df[df$iaaf == "USA","countryCode"],df[df$iaaf == "USA","stateProvince"]))
+```
+
+Here is a visualization you can try.  Mine is no good but perhaps yours will work?
